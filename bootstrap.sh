@@ -3,13 +3,12 @@ set -euo pipefail
 IFS=$'\n\t'
 
 BOOTSTRAP_REPO="https://github.com/apisnetworks/apnscp-bootstrapper.git"
-APNSCP_DEV_REPO="https://bitbucket.org/apisnetworks/apnscp.git"
+APNSCP_DEV_REPO=${APNSCP_DEV_REPO:-https://bitbucket.org/apisnetworks/apnscp.git}
 LICENSE_URL="https://license.apnscp.com/"
 APNSCP_HOME=/usr/local/apnscp
 LICENSE_KEY=${APNSCP_HOME}/config/license.pem
 TEMP_KEY="~/.apnscp.key"
 APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-7.noarch.rpm"
-
 BOLD="\e[1m"
 EMODE="\e[0m"
 RED="\e[31m"
@@ -62,12 +61,11 @@ function install {
   install_yum_pkg ansible git
   install_dev
   install_apnscp_rpm
-  git clone $BOOTSTRAP_REPO apnscp-bootstrapper
   echo "Switching to stage 2 bootstrapper..."
   sleep 1
   pushd $APNSCP_HOME/resources/playbooks
   trap 'fatal "Stage 2 bootstrap failed\nRun '\''$PWD/ansible-playbook -l localhost -K bootstrap.yml'\'' to resume"' EXIT
-  ansible-playbook -l localhost -K bootstrap.yml
+  ansible-playbook -l localhost -c local -K bootstrap.yml
   trap - EXIT
 }
 
@@ -79,8 +77,9 @@ function install_dev {
   pushd $APNSCP_HOME
   git init
   git remote add origin $APNSCP_DEV_REPO
-  git fetch
+  git fetch --depth=1
   git checkout -t origin/master
+  git submodule update --init
   pushd $APNSCP_HOME/config
   find . -type f -iname '*.dist' | while read file ; do cp "$file" "${file%.dist}" ; done
   popd
