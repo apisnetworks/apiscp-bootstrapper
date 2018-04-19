@@ -22,7 +22,7 @@ function fatal {
   exit 1
 }
 
-#[[ -f `dirname $LICENSE_KEY`/config.ini ]] && fatal "apnscp already installed"
+[[ -f `dirname $LICENSE_KEY`/config.ini ]] && fatal "apnscp already installed"
 
 function install_yum_pkg {
   yum -y install $@
@@ -58,7 +58,7 @@ function install_key {
 
 function install {
   install_yum_pkg epel-release
-  install_yum_pkg ansible git
+  install_yum_pkg ansible git yum-plugin-priorities
   install_dev
   install_apnscp_rpm
   echo "Switching to stage 2 bootstrapper..."
@@ -79,7 +79,7 @@ function install_dev {
   git remote add origin $APNSCP_DEV_REPO
   git fetch --depth=1
   git checkout -t origin/master
-  git submodule update --init
+  git submodule update --init --recursive
   pushd $APNSCP_HOME/config
   find . -type f -iname '*.dist' | while read file ; do cp "$file" "${file%.dist}" ; done
   popd
