@@ -6,7 +6,7 @@ After registering on [my.apnscp.com](https://my.apnscp.com), use the token to au
 ./bootstrap.sh <api token>
 ```
 
-Alternatively, if you have the x509 key (license.key) available,
+Alternatively, if you have the x509 key ("license.pem") available,
 ```shell
 ./bootstrap.sh -k <key file>
 ```
