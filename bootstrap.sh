@@ -4,7 +4,7 @@ IFS=$'\n\t'
 
 BOOTSTRAP_REPO="https://github.com/apisnetworks/apnscp-bootstrapper.git"
 APNSCP_DEV_REPO=${APNSCP_DEV_REPO:-https://bitbucket.org/apisnetworks/apnscp.git}
-LICENSE_URL="https://license.apnscp.com/"
+LICENSE_URL="https://bootstrap.apnscp.com/"
 APNSCP_HOME=/usr/local/apnscp
 LICENSE_KEY=${APNSCP_HOME}/config/license.pem
 TEMP_KEY="~/.apnscp.key"
