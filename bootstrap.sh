@@ -82,6 +82,7 @@ function install_dev {
   git submodule update --init --recursive
   pushd $APNSCP_HOME/config
   find . -type f -iname '*.dist' | while read file ; do cp "$file" "${file%.dist}" ; done
+  rm -f db.yaml
   popd
 }
 
