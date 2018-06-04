@@ -8,6 +8,8 @@ LICENSE_URL="https://bootstrap.apnscp.com/"
 APNSCP_HOME=/usr/local/apnscp
 LICENSE_KEY=${APNSCP_HOME}/config/license.pem
 LOG_PATH=${LOG_PATH:-/root/apnscp-bootstrapper.log}
+# Feeling feisty and want to use screen or nohup
+WRAPPER=${WRAPPER:-""}
 TEMP_KEY="~/.apnscp.key"
 APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-7.noarch.rpm"
 BOLD="\e[1m"
@@ -63,10 +65,11 @@ function install {
   install_dev
   install_apnscp_rpm
   echo "Switching to stage 2 bootstrapper..."
+  echo ""
   sleep 1
   pushd $APNSCP_HOME/resources/playbooks
   trap 'fatal "Stage 2 bootstrap failed\nRun '\''$PWD/ansible-playbook -l localhost -K bootstrap.yml'\'' to resume"' EXIT
-  env ANSIBLE_LOG_PATH=${LOG_PATH} ansible-playbook -l localhost -c local -K bootstrap.yml
+  env ANSIBLE_LOG_PATH=${LOG_PATH} $WRAPPER ansible-playbook -l localhost -c local -K bootstrap.yml
   trap - EXIT
 }
 
@@ -99,7 +102,7 @@ while getopts "hk:t" opt ; do
     ;; 
     "k")
       KEY=$OPTARG
-      [[ ${OPTARG:0:1} != "/" ]] && KEY=$OLDPWD/$KEY
+      [[ ${OPTARG:0:1} != "/" ]] && KEY=$PWD/$KEY
       install_key `realpath $OPTARG` && install
       exit 0
     ;;
