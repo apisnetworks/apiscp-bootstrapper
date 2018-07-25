@@ -3,11 +3,11 @@ set -euo pipefail
 IFS=$'\n\t'
 
 BOOTSTRAP_REPO="https://github.com/apisnetworks/apnscp-bootstrapper.git"
-APNSCP_DEV_REPO=${APNSCP_DEV_REPO:-https://bitbucket.org/apisnetworks/apnscp.git}
+APNSCP_DEV_REPO="${APNSCP_DEV_REPO:-https://bitbucket.org/apisnetworks/apnscp.git}"
 LICENSE_URL="https://bootstrap.apnscp.com/"
 APNSCP_HOME=/usr/local/apnscp
-LICENSE_KEY=${APNSCP_HOME}/config/license.pem
-LOG_PATH=${LOG_PATH:-/root/apnscp-bootstrapper.log}
+LICENSE_KEY="${APNSCP_HOME}/config/license.pem"
+LOG_PATH="${LOG_PATH:-/root/apnscp-bootstrapper.log}"
 # Feeling feisty and want to use screen or nohup
 WRAPPER=${WRAPPER:-""}
 TEMP_KEY="~/.apnscp.key"
@@ -17,6 +17,8 @@ EMODE="\e[0m"
 RED="\e[31m"
 GREEN="\e[32m"
 ECOLOR="\e[39m"
+BOOTSTRAP_STUB="/root/resume_apnscp_setup.sh"
+BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH="${LOG_PATH}" $WRAPPER ansible-playbook -l localhost -c local -K bootstrap.yml"
 
 function fatal {
   echo -e "${RED}${BOLD}ERR:${EMODE} $1"
@@ -36,6 +38,32 @@ function install_yum_pkg {
 
 function trial {
   echo "Visit https://my.apnscp.com/ to get an activation key for a free 30-day trial."
+  exit 0
+}
+
+function prompt_edit {
+  test -t 1 || return 1
+  while true; do
+    read -p "Do you wish to edit initial configuration? [y/n]" yn < /dev/tty
+    case $yn in
+        [Yy]* ) return 0;;
+        [Nn]* ) return 1;;
+        * ) echo "Please answer yes or no.";;
+    esac
+  done
+}
+
+function save_exit {
+  echo -e "#!/bin/sh\n${BOOTSTRAP_COMMAND}" > "${BOOTSTRAP_STUB}"
+  chmod 755 "${BOOTSTRAP_STUB}"
+  cp "${APNSCP_HOME}/resources/playbooks/apnscp-vars.yml" /root
+  echo -e "${GREEN}SUCCESS! apnscp-vars.yml has been copied to /root${EMODE}"
+  echo ""
+  echo "Edit apnscp-vars.yml with nano or vi:"
+  echo -e "${BOLD}nano /root/apnscp-vars.yml${EMODE}"
+  echo ""
+  echo "Make changes then rerun the bootstrapper as:"
+  echo -e "${BOLD}sh ${BOOTSTRAP_STUB}${EMODE}"
   exit 0
 }
 
@@ -61,15 +89,16 @@ function install_key {
 
 function install {
   install_yum_pkg epel-release
-  install_yum_pkg ansible git yum-plugin-priorities
+  install_yum_pkg ansible git yum-plugin-priorities nano
   install_dev
   install_apnscp_rpm
   echo "Switching to stage 2 bootstrapper..."
   echo ""
   sleep 1
+  prompt_edit && save_exit
   pushd $APNSCP_HOME/resources/playbooks
-  trap 'fatal "Stage 2 bootstrap failed\nRun '\''$PWD/ansible-playbook -l localhost -K bootstrap.yml'\'' to resume"' EXIT
-  env ANSIBLE_LOG_PATH=${LOG_PATH} $WRAPPER ansible-playbook -l localhost -c local -K bootstrap.yml
+  trap 'fatal "Stage 2 bootstrap failed\nRun '\''$BOOTSTRAP_COMMAND\'' to resume"' EXIT
+  $BOOTSTRAP_COMMAND
   trap - EXIT
 }
 
