@@ -18,7 +18,7 @@ RED="\e[31m"
 GREEN="\e[32m"
 ECOLOR="\e[39m"
 BOOTSTRAP_STUB="/root/resume_apnscp_setup.sh"
-BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH="${LOG_PATH}" $WRAPPER ansible-playbook -l localhost -c local -K bootstrap.yml"
+BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH="${LOG_PATH}" $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
 
 function fatal {
   echo -e "${RED}${BOLD}ERR:${EMODE} $1"
@@ -89,7 +89,7 @@ function install_key {
 
 function install {
   install_yum_pkg epel-release
-  install_yum_pkg ansible git yum-plugin-priorities nano
+  install_yum_pkg ansible git yum-plugin-priorities nano yum-utils screen
   install_dev
   install_apnscp_rpm
   echo "Switching to stage 2 bootstrapper..."
@@ -98,7 +98,7 @@ function install {
   prompt_edit && save_exit
   pushd $APNSCP_HOME/resources/playbooks
   trap 'fatal "Stage 2 bootstrap failed\nRun '\''$BOOTSTRAP_COMMAND\'' to resume"' EXIT
-  $BOOTSTRAP_COMMAND
+  eval $BOOTSTRAP_COMMAND
   trap - EXIT
 }
 
