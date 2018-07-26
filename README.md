@@ -11,3 +11,7 @@ Alternatively, if you have the x509 key ("license.pem") available,
 ./bootstrap.sh -k <key file>
 ```
 
+Or run from the command-line:
+```shell
+curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -k <keyfile>
+```
