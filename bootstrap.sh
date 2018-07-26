@@ -18,7 +18,7 @@ RED="\e[31m"
 GREEN="\e[32m"
 ECOLOR="\e[39m"
 BOOTSTRAP_STUB="/root/resume_apnscp_setup.sh"
-BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH="${LOG_PATH}" $WRAPPER ansible-playbook -l localhost -c local -K bootstrap.yml"
+BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH="${LOG_PATH}" $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
 
 function fatal {
   echo -e "${RED}${BOLD}ERR:${EMODE} $1"
