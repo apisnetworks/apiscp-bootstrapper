@@ -98,7 +98,7 @@ function install {
   prompt_edit && save_exit
   pushd $APNSCP_HOME/resources/playbooks
   trap 'fatal "Stage 2 bootstrap failed\nRun '\''$BOOTSTRAP_COMMAND\'' to resume"' EXIT
-  $BOOTSTRAP_COMMAND
+  eval $BOOTSTRAP_COMMAND
   trap - EXIT
 }
 
