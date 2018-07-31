@@ -89,7 +89,7 @@ function install_key {
 
 function install {
   install_yum_pkg epel-release
-  install_yum_pkg ansible git yum-plugin-priorities nano
+  install_yum_pkg ansible git yum-plugin-priorities nano yum-utils screen
   install_dev
   install_apnscp_rpm
   echo "Switching to stage 2 bootstrapper..."
