@@ -23,7 +23,7 @@ BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PA
 function fatal {
   echo -e "${RED}${BOLD}ERR:${EMODE} $1"
   echo -e "${RED}Installation failed${EMODE}"
-  popd > /dev/null
+  popd > /dev/null 2>&1
   exit 1
 }
 
