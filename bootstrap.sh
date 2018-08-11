@@ -39,7 +39,8 @@ function install_yum_pkg {
 function prompt_edit {
   test -t 1 || return 1
   while true; do
-    read -p "Do you wish to edit initial configuration? [y/n]" yn < /dev/tty
+    read -t 30 -p "Do you wish to edit initial configuration? [y/n]" yn < /dev/tty
+    [[ $? -ne 0 ]] && break
     case $yn in
         [Yy]* ) return 0;;
         [Nn]* ) return 1;;
