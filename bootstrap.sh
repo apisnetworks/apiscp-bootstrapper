@@ -36,11 +36,6 @@ function install_yum_pkg {
   fi
 }
 
-function trial {
-  echo "Visit https://my.apnscp.com/ to get an activation key for a free 30-day trial."
-  exit 0
-}
-
 function prompt_edit {
   test -t 1 || return 1
   while true; do
@@ -67,12 +62,17 @@ function save_exit {
   exit 0
 }
 
-function request_key {
+function activate_key {
   KEY=$1
-  [[ ${#KEY} == 32 ]] || fatal "Invalid activation key. Must be 32 characters long. Visit https://my.apnscp.com"
-  TMPKEY=`mktmp license.XXXXXX`
+  [[ ${#KEY} == 60 ]] || fatal "Invalid activation key. Must be 60 characters long. Visit https://my.apnscp.com"
+  return $(fetch_license /activate/"${KEY}")
+}
+
+function fetch_license {
+	URL=${1:-""}
+	TMPKEY=`mktemp license.XXXXXX`
   install_yum_pkg curl 
-  curl -O $TMPKEY $LICENSE_URL/activate/$KEY
+  curl -o "$TMPKEY" "${LICENSE_URL}${URL}"
   [[ $? -ne 0 ]] && fatal "Failed to fetch activation key."
   install_key $TMPKEY
   return 0
@@ -133,11 +133,7 @@ while getopts "hk:t" opt ; do
       KEY=$OPTARG
       [[ ${OPTARG:0:1} != "/" ]] && KEY=$PWD/$KEY
       install_key `realpath $OPTARG` && install
-      exit 0
-    ;;
-    "t")
-      trial
-      exit 0
+      exit 0  
     ;;
     "i")
       install
@@ -148,5 +144,6 @@ while getopts "hk:t" opt ; do
     ;;
   esac
 done
-[[ $# -ne 1 ]] && fatal "Missing license key"
-request_key $1 && install
+[[ $# != 0 ]] && activate_key $1
+[[ $# == 0 ]] && fetch_license
+install
