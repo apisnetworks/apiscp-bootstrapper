@@ -31,7 +31,7 @@ function fatal {
 
 function is_os {
   case ${1,,} in
-    "redhat") [[ -f /etc/redhat-release ]] && grep -q "RedHat" /etc/redhat-release
+    "redhat") [[ -f /etc/redhat-release ]] && grep -q "Red Hat" /etc/redhat-release
       return $?;;
     "centos") [[ -f /etc/centos-release ]] && grep -q "CentOS" /etc/centos-release
       return $?;;
