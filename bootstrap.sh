@@ -104,7 +104,7 @@ function install {
   if is_os centos; then
     install_yum_pkg epel-release
   elif is_os redhat; then
-    rpm -Uhv "$RHEL_EPEL_URL"
+    rpm -Uhv "$RHEL_EPEL_URL" || true
   fi
   install_yum_pkg ansible git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
   install_dev
