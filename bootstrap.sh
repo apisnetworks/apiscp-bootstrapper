@@ -13,6 +13,7 @@ WRAPPER=${WRAPPER:-""}
 KEY_UA="apnscp bootstrapper"
 TEMP_KEY="~/.apnscp.key"
 APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-7.noarch.rpm"
+RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 BOLD="\e[1m"
 EMODE="\e[0m"
 RED="\e[31m"
@@ -26,6 +27,16 @@ function fatal {
   echo -e "${RED}Installation failed${EMODE}"
   popd > /dev/null
   exit 1
+}
+
+function is_os {
+  case ${1,,} in
+    "redhat") [[ -f /etc/redhat-release ]] && grep -q "RedHat" /etc/redhat-release
+      return $?;;
+    "centos") [[ -f /etc/centos-release ]] && grep -q "CentOS" /etc/centos-release
+      return $?;;
+    *) fatal "Unknown OS $1"
+  esac
 }
 
 [[ -f `dirname $LICENSE_KEY`/config.ini ]] && fatal "apnscp already installed"
@@ -90,7 +101,11 @@ function install_key {
 }
 
 function install {
-  install_yum_pkg epel-release
+  if is_os centos; then
+    install_yum_pkg epel-release
+  elif is_os redhat; then
+    rpm -Uhv "$RHEL_EPEL_URL"
+  fi
   install_yum_pkg ansible git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
   install_dev
   install_apnscp_rpm
