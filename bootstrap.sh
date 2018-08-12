@@ -10,6 +10,7 @@ LICENSE_KEY="${APNSCP_HOME}/config/license.pem"
 LOG_PATH="${LOG_PATH:-/root/apnscp-bootstrapper.log}"
 # Feeling feisty and want to use screen or nohup
 WRAPPER=${WRAPPER:-""}
+KEY_UA="apnscp bootstrapper"
 TEMP_KEY="~/.apnscp.key"
 APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-7.noarch.rpm"
 BOLD="\e[1m"
@@ -40,7 +41,7 @@ function prompt_edit {
   test -t 1 || return 1
   while true; do
     read -t 30 -p "Do you wish to edit initial configuration? [y/n]" yn < /dev/tty
-    [[ $? -ne 0 ]] && break
+    [[ $? -ne 0 ]] && return 1
     case $yn in
         [Yy]* ) return 0;;
         [Nn]* ) return 1;;
@@ -73,7 +74,7 @@ function fetch_license {
 	URL=${1:-""}
 	TMPKEY=`mktemp license.XXXXXX`
   install_yum_pkg curl 
-  curl -o "$TMPKEY" "${LICENSE_URL}${URL}"
+  curl -A "$KEY_UA" -o "$TMPKEY" "${LICENSE_URL}${URL}"
   [[ $? -ne 0 ]] && fatal "Failed to fetch activation key."
   install_key $TMPKEY
   return 0
@@ -90,7 +91,7 @@ function install_key {
 
 function install {
   install_yum_pkg epel-release
-  install_yum_pkg ansible git yum-plugin-priorities nano yum-utils screen
+  install_yum_pkg ansible git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
   install_dev
   install_apnscp_rpm
   echo "Switching to stage 2 bootstrapper..."
