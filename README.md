@@ -46,6 +46,8 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
 * Linode 2048, 1x CPU
   * 1:17:23.97 (E5-2697, 4599 bogomips)
   * 1:21:49.02 (E5-2697, 4599 bogomips)
+* Linode 4GB, 2x CPU (ATL data center)
+  * 1:19:57.583 (E5-2697, 4599 bogomips)
 * DigitalOcean 2 GB, 1x CPU
   * 1:39:49.07 (Gold 6140, 4589 bogomips)
 * DigitalOcean 2 GB, 1x High Throughput CPU
@@ -56,4 +58,7 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
   * 0:51:51.36 (Virtual CPU 82d93d4018dd, 5187 bogomips)
     *yum.apnscp.com is presently on Vultr and whereas this affects a small segment of the test, performance was still impressive thus necessitating a retest in another location*
 * Vultr 2GB, 1x CPU (ATL data center retest)
-  * 1:26:46.265  (Virtual CPU 82d93d4018dd, 5187 bogomips)
+  * 1:26:46.265 (Virtual CPU 82d93d4018dd, 5187 bogomips)
+* Vultr 2GB, 1x CPU (CHI data center)
+  * 1:04:13.397 (Virtual CPU 82d93d4018dd, 5187 bogomips)
+  
