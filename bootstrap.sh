@@ -51,7 +51,7 @@ function install_yum_pkg {
 function prompt_edit {
   test -t 1 || return 1
   while true; do
-    read -t 30 -p "Do you wish to edit initial configuration? [y/n]" yn < /dev/tty
+    read -t 30 -p "Do you wish to edit initial configuration? Installation resumes in 30 seconds automatically. [y/n] " yn < /dev/tty
     [[ $? -ne 0 ]] && return 1
     case $yn in
         [Yy]* ) return 0;;
@@ -82,8 +82,8 @@ function activate_key {
 }
 
 function fetch_license {
-	URL=${1:-""}
-	TMPKEY=`mktemp license.XXXXXX`
+  URL=${1:-""}
+  TMPKEY=`mktemp license.XXXXXX`
   install_yum_pkg curl 
   curl -A "$KEY_UA" -o "$TMPKEY" "${LICENSE_URL}${URL}"
   [[ $? -ne 0 ]] && fatal "Failed to fetch activation key."
