@@ -1,24 +1,23 @@
-Bootstrap provides an automated installation process to setup apnscp on a compatible CentOS/RHEL machine.
+# apnscp Bootstrap Utility
+Bootstrap Utility provides an automated installation process to setup apnscp on a compatible CentOS/RHEL machine. Not to be confused with apnscp Bootstrapper, which is a specific component of apnscp's [playbooks](https://github.com/apisnetworks/apnscp-playbooks) and called by this utility once the minimum environment is setup.
 
 # Usage
-After registering on [my.apnscp.com](https://my.apnscp.com), use the token to automatically download the key.
-```shell
-./bootstrap.sh <api token>
-```
+## Trial mode
+Trials are valid for 60 days and during development may be continuously rearmed as necessary. Trials can also be used to benchmark cloud providers (see below).
 
-Alternatively, if you have the x509 key ("license.pem") available,
-```shell
-./bootstrap.sh -k <key file>
-```
-
-Or run from the command-line with a license,
-```shell
-curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -k <keyfile>
-```
-
-Or in trial mode:
 ```shell
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash
+```
+
+## Registered licenses
+After registering on [my.apnscp.com](https://my.apnscp.com), use the token to automatically download the key.
+```shell
+curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - <api token>
+```
+
+Alternatively, if you have the x509 key ("license.pem") available where <keyfile> is the absolute path.
+```shell
+curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -k <keyfile>
 ```
 
 # Benchmarking providers
@@ -61,4 +60,6 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
   * 1:26:46.265 (Virtual CPU 82d93d4018dd, 5187 bogomips)
 * Vultr 2GB, 1x CPU (CHI data center)
   * 1:04:13.397 (Virtual CPU 82d93d4018dd, 5187 bogomips)
+* Vultr 32GB, 8x CPU (LA data center)
+  * 0:56:40.751 (Virtual CPU 82d93d4018dd, 5187x8 bogomips)
   
