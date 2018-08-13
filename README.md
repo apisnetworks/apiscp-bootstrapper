@@ -47,6 +47,8 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
   * 1:21:49.02 (E5-2697, 4599 bogomips)
 * Linode 4GB, 2x CPU (ATL data center)
   * 1:19:57.583 (E5-2697, 4599 bogomips)
+* Linode 32GB, 8x CPU (NJ data center)
+  * 1:07:59.054 (E5-2680, 5600x8 bogomips)
 * DigitalOcean 2 GB, 1x CPU
   * 1:39:49.07 (Gold 6140, 4589 bogomips)
 * DigitalOcean 2 GB, 1x High Throughput CPU
