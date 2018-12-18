@@ -11,7 +11,7 @@ curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/b
 
 ## Registered licenses
 After registering on [my.apnscp.com](https://my.apnscp.com), use the token to automatically download the key.
-```shell
+```bash
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - <api token>
 ```
 
@@ -19,6 +19,23 @@ Alternatively, if you have the x509 key ("license.pem") available where <keyfile
 ```shell
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -k <keyfile>
 ```
+
+## Setting initial configuration
+
+`-s` may be used to set variables in [`apnscp-vars.yml`](https://github.com/apisnetworks/apnscp-playbooks/blob/master/apnscp-vars.yml), which is the initial configuration template for apnscp. Additionally any role defaults may be overridden through this usage (such as "[rspamd_enabled](https://github.com/apisnetworks/apnscp-playbooks/blob/master/roles/mail/rspamd/defaults/main.yml)"). Escape sequences and quote when necessary because variables are passed as-is to apnscp-vars.yml.
+
+```shell
+# Run bootstrap.sh from CLI setting apnscp_admin_email and ssl_hostnames in unattended installation
+bootstrap.sh -s apnscp_admin_email=matt@apisnetworks.com -s ssl_hostnames="['apnscp.com','apisnetworks.com']"
+```
+
+These arguments may be passed as part of the one-liner too. Note usage of `-` after first `-s`.
+
+```bash
+curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -s apnscp_admin_email=matt@apisnetworks.com -s ssl_hostnames="['apnscp.com','apisnetworks.com']"
+```
+
+
 
 # Benchmarking providers
 
@@ -35,8 +52,6 @@ IFS=$'\n' ; DATES=($((tail -n 1 /root/apnscp-bootstrapper.log | grep failed=0 ; 
 ```
 
 A duration will appear or the last 10 lines of /root/apnscp-bootstrapper.log if it failed.
-
-
 
 ## Provider stats
 
