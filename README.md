@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/apisnetworks/apnscp-bootstrapper.svg?branch=master)](https://travis-ci.org/apisnetworks/apnscp-bootstrapper)
 
 # apnscp Bootstrap Utility
-Bootstrap Utility provides an automated installation process to setup apnscp on a compatible CentOS/RHEL machine. Not to be confused with apnscp Bootstrapper, which is a specific component of apnscp's [playbooks](https://github.com/apisnetworks/apnscp-playbooks) and called by this utility once the minimum environment is setup.
+Bootstrap Utility provides an automated installation process to setup [apnscp](https://apnscp.com) on a compatible CentOS/RHEL machine. Not to be confused with apnscp Bootstrapper, which is a specific component of apnscp's [playbooks](https://github.com/apisnetworks/apnscp-playbooks) and called by this utility once the minimum environment is setup.
 
 # Usage
 ## Trial mode
