@@ -115,17 +115,19 @@ save_exit() {
 
 activate_key() {
   KEY=$1
-  [[ ${#KEY} == 60 ]] || fatal "Invalid activation key. Must be 60 characters long. Visit https://my.apnscp.com"
-  return "$(fetch_license /activate/"$KEY")"
+  CN=${2:+/$2}
+  [[ ${#KEY} -ge 10 ]] || fatal "Invalid activation key. Visit https://my.apnscp.com to purchase a key"
+  fetch_license /activate/"$KEY""$CN"
+  return 0
 }
 
 fetch_license() {
   URL=${1:-""}
   TMPKEY=$(mktemp license.XXXXXX)
   install_yum_pkg curl
-  curl -A "$KEY_UA" -o "$TMPKEY" "${LICENSE_URL}${URL}"
+  CODE=$(( $(curl -f -w '%{http_code}' -A "$KEY_UA" -o "$TMPKEY" "${LICENSE_URL}${URL}") ))
   STATUS=$?
-  [[ $STATUS -ne 0 ]] && fatal "Failed to fetch activation key."
+  [[ $STATUS -ne 0 || $CODE -ge 300 || $CODE -lt 200 ]] && fatal "Failed to fetch activation key."
   install_key "$TMPKEY"
   return 0
 }
@@ -220,7 +222,7 @@ done
 shift $((OPTIND-1))
 
 if [[ "$MODE" != "install" ]]; then
-	[[ $# != 0 ]] && activate_key "$1"
+	[[ $# != 0 ]] && activate_key "$1" "${2:-}"
 	[[ $# == 0 ]] && fetch_license
 fi
 
