@@ -18,14 +18,14 @@ After registering on [my.apnscp.com](https://my.apnscp.com), use the token to au
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - <api token> <optional common name>
 ```
 
-Alternatively, if you have the x509 key ("license.pem") available where <keyfile> is the absolute path.
+Alternatively, if you have the x509 key ("license.pem") available where &lt;keyfile&gt; is the absolute path.
 ```shell
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -k <keyfile>
 ```
 
 ### Optional common name
 
-An optional common name may be specified after <api token>. This is a 64 character long unique identifier that describes your certificate and may be any printable character. Emojis will be transcoded to their 4-byte sequence. Sorry 🍆!
+An optional common name may be specified after &lt;api token&gt;. This is a 64 character long unique identifier that describes your certificate and may be any printable character. Emojis will be transcoded to their 4-byte sequence. Sorry 🍆!
 
 ## Setting initial configuration
 
@@ -54,7 +54,7 @@ curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/b
 
 # Benchmarking providers
 
-bootstrap.sh can also be used to benchmark a provider since it runs unassisted from start to finish. For consistency commit [bc058b4](https://gitlab.com/apisnetworks/apnscp/tree/bc058b4807a29500485a239ff67c735f46405dc9) is referenced ("benchmark" tag). If `RELEASE` is omitted bootstrap.sh will use master, which may produce different results that the stats below.
+bootstrap.sh can also be used to benchmark a provider since it runs unassisted from start to finish. For consistency commit [3f2944ae](https://gitlab.com/apisnetworks/apnscp/tree/3f2944ae3c6417cc2e8d48c80944daff03bd23df) is referenced ("benchmark" tag). If `RELEASE` is omitted bootstrap.sh will use master, which may produce different results than the stats below.
 
 ```shell
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | env RELEASE=benchmark bash 
