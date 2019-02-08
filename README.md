@@ -5,7 +5,7 @@ Bootstrap Utility ("bootstrap.sh") provides an automated installation process to
 
 # Usage
 ## Trial mode
-Trials are valid for 60 days and during development may be continuously rearmed as necessary. Trials can also be used to benchmark cloud providers (see below).
+Trials are valid for 30 days and during development may be continuously rearmed as necessary. Trials can also be used to benchmark cloud providers (see below).
 
 ```shell
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash
