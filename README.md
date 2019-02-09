@@ -7,7 +7,7 @@ Bootstrap Utility ("bootstrap.sh") provides an automated installation process to
 ## Trial mode
 Trials are valid for 30 days and during development may be continuously rearmed as necessary. Trials can also be used to benchmark cloud providers (see below).
 
-```shell
+```bash
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash
 ```
 
@@ -19,7 +19,7 @@ curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/b
 ```
 
 Alternatively, if you have the x509 key ("license.pem") available where &lt;keyfile&gt; is the absolute path.
-```shell
+```bash
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -k <keyfile>
 ```
 
@@ -35,7 +35,7 @@ apnscp may be customized via [apnscp.com's customizer](https://apnscp.com/#custo
 
 `-s` may be used to set variables at installation in [`apnscp-vars.yml`](https://github.com/apisnetworks/apnscp-playbooks/blob/master/apnscp-vars.yml), which is the initial configuration template for apnscp. Additionally any role defaults may be overridden through this usage (such as "[rspamd_enabled](https://github.com/apisnetworks/apnscp-playbooks/blob/master/roles/mail/rspamd/defaults/main.yml)"). Escape sequences and quote when necessary because variables are passed as-is to apnscp-vars.yml.
 
-```shell
+```bash
 # Run bootstrap.sh from CLI setting apnscp_admin_email and ssl_hostnames in unattended installation
 bootstrap.sh -s apnscp_admin_email=matt@apisnetworks.com -s ssl_hostnames="['apnscp.com','apisnetworks.com']"
 ```
@@ -56,7 +56,7 @@ curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/b
 
 bootstrap.sh can also be used to benchmark a provider since it runs unassisted from start to finish. For consistency commit [3f2944ae](https://gitlab.com/apisnetworks/apnscp/tree/benchmark) is referenced ("benchmark" tag). If `RELEASE` is omitted bootstrap.sh will use master, which may produce different results than the stats below.
 
-```shell
+```bash
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | env RELEASE=benchmark bash 
 ```
 
@@ -73,6 +73,31 @@ cpcmd config_set apnscp.debug true  ; sleep 5 ; cpcmd test_backend_performance ;
 ```
 
 debug mode will be temporarily enabled, which opens up access to the [test module](https://api.apnscp.com/class-Test_Module.html) API.
+
+### Converting into production panel
+
+A server provisioned using the *benchmark* branch can be converted to a normal build without resetting the server. Use cpcmd to set any [apnscp-vars.yml](https://github.com/apisnetworks/apnscp-playbooks/blob/master/apnscp-vars.yml) value; use the [Customization Utility](https://apnscp.com/#customize) on apnscp as cross-reference.
+
+```bash
+# Launch new bash shell with apnscp helper functions
+exec $SHELL -i
+cd /usr/local/apnscp
+# Save remote URL, should be gitlab.com/apisnetworks/apnscp.git
+REMOTE="$(git config --get remote.origin.url)"
+git remote remove origin
+git remote add -f -t master origin "$REMOTE"
+git reset --hard origin/master
+cpcmd config_set apnscp.bootstrapper populate_filesystem_template true
+# Set any other Bootstrapper values from apnscp-vars.yml...
+# cpcmd config_set apnscp.bootstrapper varname varval
+upcp -sb
+# After Bootstrapper completes - it will take 5-30 minutes to do so
+cpcmd config_set apnscp.bootstrapper populate_filesystem_template auto
+cpcmd auth_change_password newadminpassword
+cpcmd common_set_email your@email.address
+```
+
+`populate_filesystem_template` must be enabled to update any packages that have been added/removed in apnscp. Once everything is done, access [apnscp's interface](https://hq.apnscp.com/apnscp-pre-alpha-technical-release/#loggingintoapnscp) to get started.
 
 ## Provider stats
 
