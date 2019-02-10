@@ -14,7 +14,7 @@ RELEASE="${RELEASE:-""}"
 RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 APNSCP_VARS_FILE="${APNSCP_HOME}/resources/playbooks/apnscp-vars.yml"
 BOOTSTRAP_STUB="/root/resume_apnscp_setup.sh"
-BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
+BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
 KEY_UA="apnscp bootstrapper"
 EXTRA_VARS=()
 BOLD="\e[1m"
@@ -125,6 +125,7 @@ activate_key() {
 fetch_license() {
 	URL=${1:-""}
 	TMPKEY=$(mktemp license.XXXXXX)
+	yum clean all
 	install_yum_pkg curl
 	CODE=$(( $(curl -f -w '%{http_code}' -A "$KEY_UA" -o "$TMPKEY" "${LICENSE_URL}${URL}") ))
 	STATUS=$?
@@ -171,8 +172,8 @@ install_dev() {
 	if test "$RELEASE" == ""; then
 		git init
 		git remote add origin "$APNSCP_REPO"
-		git fetch --depth=1
-		git checkout -t origin/master
+		git fetch --tags
+		git checkout "$(git tag | grep '^v' | tail -n 1)"
 	else
 		git clone --bare --depth=1 --branch "$RELEASE" "$APNSCP_REPO" .git
 		git config --unset core.bare

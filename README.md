@@ -146,6 +146,40 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
 
     * **Install:** 0:59:09, **Backend:** 11568 requests/second (2 GB, 1x "Virtual CPU" - 5187 bogomips)
 
+## Role profiling
+
+bootstrap.sh includes role profiling. Set `ANSIBLE_STDOUT_CALLBACK=profile_roles`  as a wrapper:
+
+```bash
+curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | env WRAPPER='ANSIBLE_STDOUT_CALLBACK=profile_roles' bash
+```
+
+An average runtime of the top 20 most expensive roles. This completed 1:00:05 on February 10, 2019 (Vultr, 2 GB).
+
+| Role                                  | Time (seconds) |
+| ------------------------------------- | -------------- |
+| php/build-from-source                 | 887.54         |
+| packages/install                      | 603.77         |
+| apnscp/initialize-filesystem-template | 569.42         |
+| software/passenger                    | 322.41         |
+| mail/configure-postfix                | 253.48         |
+| clamav/support                        | 74.50          |
+| mail/configure-postfix                | 71.56          |
+| common                                | 71.20          |
+| mail/spamassassin                     | 52.93          |
+| apnscp/install-vendor-library         | 38.34          |
+| php/install-pecl-module               | 34.33          |
+| clamav/setup                          | 32.24          |
+| network/setup-firewall                | 19.58          |
+| mail/configure-dovecot                | 18.82          |
+| apnscp/bootstrap                      | 17.55          |
+| system/pam                            | 13.15          |
+| software/argos                        | 12.14          |
+| software/rbenv-support                | 9.67           |
+| software/watchdog                     | 9.19           |
+
+
+
 ## Contributing
 
 Fork, benchmark, and submit a PR - even for benchmark results. This project is licensed under MIT. Have fun!
