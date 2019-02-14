@@ -173,7 +173,7 @@ install_dev() {
 		git init
 		git remote add origin "$APNSCP_REPO"
 		git fetch --tags
-		git checkout "$(git tag | grep '^v' | tail -n 1)"
+		git checkout "$(git for-each-ref --sort=taggerdate --format '%(tag)' refs/tags | grep '^v' | tail -n 1)"
 	else
 		git clone --bare --depth=1 --branch "$RELEASE" "$APNSCP_REPO" .git
 		git config --unset core.bare
