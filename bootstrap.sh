@@ -70,6 +70,9 @@ set_vars() {
 			VAR[2] = substr($0, idx+1);
 			regex = "^"VAR[1]":"
 			found = 0
+			if (VAR[2] ~ /^\[/) {
+				VAR[2] = "\042"VAR[2]"\042"
+			}
 			while (( getline line < "'"$VARS_FILE"'") > 0 ) {
 				where = match(line, regex)
 				if (where != 0) {
