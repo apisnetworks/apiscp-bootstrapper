@@ -68,8 +68,14 @@ IFS=$'\n' ; DATES=($((tail -n 1 /root/apnscp-bootstrapper.log | grep failed=0 ; 
 
 A duration will appear or the last 10 lines of `/root/apnscp-bootstrapper.log` if it failed. This tests network/IO/CPU. 
 
-A second test of backend performance once apnscp is setup gives the baseline performance between frontend/backend communication to a single vCPU. This can be tested as follows,
+A second test of backend performance once apnscp is setup gives the baseline performance between frontend/backend communication to a single vCPU. This can be tested as follows.
 
+First update the shell with helpers from .bashrc,
+```bash
+exec $SHELL -i
+```
+
+Then run the cpcmd helper,
 ```bash
 cpcmd config_set apnscp.debug true  ; sleep 5 ; cpcmd test_backend_performance ; cpcmd config_set apnscp.debug false
 ```
