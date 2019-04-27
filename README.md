@@ -152,9 +152,23 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
 
     * **Install:** 0:59:09, **Backend:** 11568 requests/second (2 GB, 1x "Virtual CPU" - 5187 bogomips)
 
+## Storage benchmark
+FST replication is the best indicator of filesystem performance in apnscp. This can be achieved using yum-post, which queries all installed packages from PostgreSQL, enumerates contents (`rpm -ql`), then creates the analogous file structure within /home/virtual/FILESYSTEMTEMPLATE.
+
+```bash
+time (/usr/local/apnscp/bin/scripts/yum-post.php resync --force > /dev/null)
+```
+
+A sample result from Vultr's 2 GB machine in Atlanta:
+```
+real    1m8.748s
+user    0m49.031s
+sys     0m17.572s
+```
+
 ## Role profiling
 
-bootstrap.sh includes role profiling. Set `ANSIBLE_STDOUT_CALLBACK=profile_roles`  as a wrapper:
+bootstrap.sh includes role profiling. Set `ANSIBLE_STDOUT_CALLBACK=profile_roles` as a wrapper:
 
 ```bash
 curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | env WRAPPER='ANSIBLE_STDOUT_CALLBACK=profile_roles' bash
@@ -183,8 +197,6 @@ An average runtime of the top 20 most expensive roles. This completed 1:00:05 on
 | software/argos                        | 12.14          |
 | software/rbenv-support                | 9.67           |
 | software/watchdog                     | 9.19           |
-
-
 
 ## Contributing
 
