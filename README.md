@@ -112,24 +112,20 @@ cpcmd common_set_email your@email.address
 Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 minutes is impressive. These are stats taken from [Bootstrapper](https://github.com/apisnetworks/apnscp-playbooks) initial runs as bundled with part of [apnscp](https://apisnetworks.com). Note that as with shared hosting, or any shared resource, performance is adversely affected by oversubscription and noisy neighbors. Newer hypervisors show better benchmark numbers whereas older hypervisors show lower performance figures.
 
 * AWS
-
     * t3.small
         * **Install:** 1:15:48, **Backend:** 7331 requests/second (2 GB, 2x vCPU, 2.5 GHz, P-8175 - 5000 bogomips)
     * Lightsail
         * **Install:** 2:31:08, **Backend:** 1475 requests/second (2 GB, 1x E5-2676 - 4789 bogomips)
 
 * Azure
-
     * B1ms
         * **Install:** 4:39:00, **Backend:** 4477 requests/second (2 GB, 1x E5-2673 v4 - 4589 bogomips)
     * D2s v3
         * **Install:** 1:47:43, **Backend:** 3932 requests/second (8 GB, 2x E5-2673 v4 - 4589 bogomips)
-
     * D4 v3
         * **Install:** 1:54:18, **Backend:** 3730 requests/second (16 GB, 4x E5-2673 v3 - 4788 bogomips)
 
 * DigitalOcean
-
     * **Install:** 1:40:55, **Backend:** 6234 requests/second (2 GB, 1x E5-2650 - 4399 bogomips)
 
 * Hetzner
@@ -137,19 +133,18 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
     * **Install:** 1:26:13, **Backend:** 10776 requests/second (2 GB, 1x Skylake, IBRS - 4199 bogomips)
 
 * Linode
-
     * **Install:** 1:12:16, **Backend:** 8199 requests/second (2 GB, 1x E5-2697 - 4599 bogomips)
 
 * OVH
-
     * **Install:** 1:22:54, **Backend:** 7232 requests/second (2 GB, 1x "Haswell, no TSX" - 6185 bogomips)
-
+    
+* UpCloud
+    * **Install:** 1:24:17, **Backend:** 11458 requests/second (2 GB, 1x "Xeon Gold 6136" - 5985 bogomips)
+    
 * Virmach
-
     * **Install:** 3:27:12, **Backend:** 1302 requests/second (4 GB, 3x "QEMU Virtual CPU" - 4399 bogomips)
 
 * Vultr
-
     * **Install:** 0:59:09, **Backend:** 11568 requests/second (2 GB, 1x "Virtual CPU" - 5187 bogomips)
 
 ## Storage benchmark
