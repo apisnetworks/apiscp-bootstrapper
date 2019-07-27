@@ -132,6 +132,9 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
     * **Install:** 1:05:52, **Backend:** 11397 requests/second (2 GB, 1x Skylake, IBRS - 4199 bogomips)
     * **Install:** 1:26:13, **Backend:** 10776 requests/second (2 GB, 1x Skylake, IBRS - 4199 bogomips)
 
+* Kimsufi
+    * **Install:** 2:22:56, **Backend:** 8242 requests/second (8 GB, 1x i3 2130, 2 TB HGST 7200 RPM)
+
 * Linode
     * **Install:** 1:12:16, **Backend:** 8199 requests/second (2 GB, 1x E5-2697 - 4599 bogomips)
 
