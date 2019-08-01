@@ -140,6 +140,7 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
 
 * OVH
     * **Install:** 1:22:54, **Backend:** 7232 requests/second (2 GB, 1x "Haswell, no TSX" - 6185 bogomips)
+    * **Install:** 1:23:10, **Backend:** 16585 requests/second (SP-32 Server [Xeon E3-1270v6, 32GB RAM, 2x 450 NVMe in SoftRAID 1])
     
 * UpCloud
     * **Install:** 1:24:17, **Backend:** 11458 requests/second (2 GB, 1x "Xeon Gold 6136" - 5985 bogomips)
