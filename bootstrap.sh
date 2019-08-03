@@ -152,7 +152,7 @@ install() {
 	elif is_os redhat; then
 		rpm -Uhv "$RHEL_EPEL_URL" || true
 	fi
-	install_yum_pkg gawk ansible git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
+	install_yum_pkg gawk ansible libselinux-python git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
 	install_dev
 	install_apnscp_rpm
 	echo "Switching to stage 2 bootstrapper..."
