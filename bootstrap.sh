@@ -39,6 +39,12 @@ is_os() {
 	esac
 }
 
+is_8() {
+	local FILE=/etc/centos-release
+	[[ -f /etc/redhat-release ]] && FILE=/etc/redhat-release
+	grep -qE '\b8\.' $FILE
+	return $?
+}
 
 test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "apnscp already installed"
 
@@ -147,6 +153,9 @@ install_key() {
 }
 
 install() {
+	if is_8; then
+		fatal "CentOS/RHEL 8 is not supported yet"
+	fi
 	if is_os centos; then
 		install_yum_pkg epel-release
 	elif is_os redhat; then
