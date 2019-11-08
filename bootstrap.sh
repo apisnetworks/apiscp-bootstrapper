@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=2031,2030
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -9,12 +10,15 @@ LICENSE_KEY="${APNSCP_HOME}/config/license.pem"
 LOG_PATH="${LOG_PATH:-/root/apnscp-bootstrapper.log}"
 # Feeling feisty and want to use screen or nohup
 WRAPPER=${WRAPPER:-""}
-APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-7.noarch.rpm"
 RELEASE="${RELEASE:-""}"
+# Further adjustments unnecessary
+APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-7.noarch.rpm"
 RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 APNSCP_VARS_FILE="${APNSCP_HOME}/resources/playbooks/apnscp-vars.yml"
+PYTHON_VERSION="python2.7"
+STRATEGY_PLUGIN_DIR="/usr/lib/${PYTHON_VERSION}/site-packages/ansible_mitogen/plugins/strategy"
 BOOTSTRAP_STUB="/root/resume_apnscp_setup.sh"
-BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
+BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} ANSIBLE_STRATEGY_PLUGINS=${STRATEGY_PLUGIN_DIR} ANSIBLE_STRATEGY=mitogen_linear BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
 KEY_UA="apnscp bootstrapper"
 EXTRA_VARS=()
 BOLD="\e[1m"
@@ -134,11 +138,22 @@ activate_key() {
 fetch_license() {
 	URL=${1:-""}
 	TMPKEY=$(mktemp license.XXXXXX)
+	CODE=""
+	ERROR=""
 	yum clean all
 	install_yum_pkg curl
-	CODE=$(( $(curl -f -w '%{http_code}' -A "$KEY_UA" -o "$TMPKEY" "${LICENSE_URL}${URL}") ))
+
+	# Capturing stderr and stdout and the HTTP status message is a little harder than anticipated
+	eval "$( (curl -sS -w '%{http_code}' -A "$KEY_UA" -o "$TMPKEY" "${LICENSE_URL}${URL}") \
+		2> >(readarray -t ERROR; typeset -p ERROR) \
+		 > >(readarray -t CODE; typeset -p CODE) )"
+
 	STATUS=$?
-	[[ $STATUS -ne 0 || $CODE -ge 300 || $CODE -lt 200 ]] && fatal "Failed to fetch activation key."
+	if [[ $CODE -ge 300 || $CODE -lt 200 ]]; then
+		ERROR="$(cat "$TMPKEY")"
+		rm -f "$TMPKEY"
+	fi
+	[[ $STATUS -ne 0 || $CODE -ge 300 || $CODE -lt 200 ]] && fatal "Failed to fetch activation key: ($CODE) ${ERROR:-rate-limited}"
 	install_key "$TMPKEY"
 	return 0
 }
@@ -161,9 +176,9 @@ install() {
 	elif is_os redhat; then
 		rpm -Uhv "$RHEL_EPEL_URL" || true
 	fi
-	install_yum_pkg gawk ansible libselinux-python git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
-	install_dev
 	install_apnscp_rpm
+	install_yum_pkg gawk ansible libselinux-python git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen python2-mitogen
+	install_dev
 	echo "Switching to stage 2 bootstrapper..."
 	echo ""
 	sleep 1
@@ -197,8 +212,6 @@ install_dev() {
 	popd
 }
 
-#install_bootstrapper
-#exit
 MODE=""
 
 while getopts "hs:k:t" opt ; do
