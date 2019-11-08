@@ -18,7 +18,7 @@ APNSCP_VARS_FILE="${APNSCP_HOME}/resources/playbooks/apnscp-vars.yml"
 PYTHON_VERSION="python2.7"
 STRATEGY_PLUGIN_DIR="/usr/lib/${PYTHON_VERSION}/site-packages/ansible_mitogen/plugins/strategy"
 BOOTSTRAP_STUB="/root/resume_apnscp_setup.sh"
-BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} ANSIBLE_STRATEGY_PLUGINS=${STRATEGY_PLUGIN_DIR} ANSIBLE_STRATEGY=mitogen_linear BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
+BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
 KEY_UA="apnscp bootstrapper"
 EXTRA_VARS=()
 BOLD="\e[1m"
@@ -177,7 +177,7 @@ install() {
 		rpm -Uhv "$RHEL_EPEL_URL" || true
 	fi
 	install_apnscp_rpm
-	install_yum_pkg gawk ansible libselinux-python git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen python2-mitogen
+	install_yum_pkg gawk ansible libselinux-python git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
 	install_dev
 	echo "Switching to stage 2 bootstrapper..."
 	echo ""
