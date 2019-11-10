@@ -15,8 +15,8 @@ RELEASE="${RELEASE:-""}"
 APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-7.noarch.rpm"
 RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 APNSCP_VARS_FILE="${APNSCP_HOME}/resources/playbooks/apnscp-vars.yml"
-PYTHON_VERSION="python2.7"
-STRATEGY_PLUGIN_DIR="/usr/lib/${PYTHON_VERSION}/site-packages/ansible_mitogen/plugins/strategy"
+#PYTHON_VERSION="python2.7"
+#STRATEGY_PLUGIN_DIR="/usr/lib/${PYTHON_VERSION}/site-packages/ansible_mitogen/plugins/strategy"
 BOOTSTRAP_STUB="/root/resume_apnscp_setup.sh"
 BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
 KEY_UA="apnscp bootstrapper"
@@ -176,9 +176,11 @@ install() {
 	elif is_os redhat; then
 		rpm -Uhv "$RHEL_EPEL_URL" || true
 	fi
-	install_apnscp_rpm
 	install_yum_pkg gawk ansible libselinux-python git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
+	install_apnscp_rpm
 	install_dev
+	# A downgrade is necessary at this point to counteract a 20x slowdown in ini_file usage between 2.8.1 and 2.8.2
+	rpm -Uhv --force "https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/ansible-2.8.1-1.el7.ans.noarch.rpm"
 	echo "Switching to stage 2 bootstrapper..."
 	echo ""
 	sleep 1
