@@ -179,8 +179,6 @@ install() {
 	install_yum_pkg gawk ansible libselinux-python git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
 	install_apnscp_rpm
 	install_dev
-	# A downgrade is necessary at this point to counteract a 20x slowdown in ini_file usage between 2.8.1 and 2.8.2
-	rpm -Uhv --force "https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/ansible-2.8.1-1.el7.ans.noarch.rpm"
 	echo "Switching to stage 2 bootstrapper..."
 	echo ""
 	sleep 1
