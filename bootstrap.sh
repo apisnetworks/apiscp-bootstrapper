@@ -52,6 +52,18 @@ is_8() {
 
 test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "apnscp already installed"
 
+force_upgrade() {
+	VERFILE="/etc/centos-release"
+	if is_os redhat; then
+		VERFILE="/etc/redhat-release"
+	fi
+	if grep -qE '\b(7\.7|8\.)' "$VERFILE"; then
+		return 0
+	fi
+	echo -e "${BOLD}Updating OS. Old version detected!${EMODE}"
+	yum upgrade -y
+}
+
 install_yum_pkg() {
 	yum -y install "$@"
 	STATUS=$?
@@ -171,6 +183,7 @@ install() {
 	if is_8; then
 		fatal "CentOS/RHEL 8 is not supported yet"
 	fi
+	force_upgrade
 	if is_os centos; then
 		install_yum_pkg epel-release
 	elif is_os redhat; then
