@@ -212,7 +212,7 @@ install_dev() {
 	if test "$RELEASE" == ""; then
 		git init
 		git remote add origin "$APNSCP_REPO"
-		git fetch --tags
+		git fetch --tags --depth=1
 		git checkout "$(git for-each-ref --sort=taggerdate --format '%(tag)' refs/tags | grep '^v' | tail -n 1)"
 	else
 		git clone --bare --depth=1 --branch "$RELEASE" "$APNSCP_REPO" .git
