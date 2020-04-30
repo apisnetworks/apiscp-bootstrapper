@@ -11,9 +11,6 @@ LOG_PATH="${LOG_PATH:-/root/apnscp-bootstrapper.log}"
 # Feeling feisty and want to use screen or nohup
 WRAPPER=${WRAPPER:-""}
 RELEASE="${RELEASE:-""}"
-# Further adjustments unnecessary
-APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-7.noarch.rpm"
-RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 APNSCP_VARS_FILE="${APNSCP_HOME}/resources/playbooks/apnscp-vars.yml"
 #PYTHON_VERSION="python2.7"
 #STRATEGY_PLUGIN_DIR="/usr/lib/${PYTHON_VERSION}/site-packages/ansible_mitogen/plugins/strategy"
@@ -50,6 +47,18 @@ is_8() {
 	return $?
 }
 
+as_major() {
+	is_8
+	case $? in
+		0) echo "8" ;;
+		1) echo "7" ;;
+	esac
+}
+
+# Further adjustments unnecessary
+APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-$(as_major).noarch.rpm"
+RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(as_major).noarch.rpm"
+
 test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "apnscp already installed"
 
 force_upgrade() {
@@ -57,7 +66,11 @@ force_upgrade() {
 	if is_os redhat; then
 		VERFILE="/etc/redhat-release"
 	fi
-	if grep -qE '\b(7\.7|8\.)' "$VERFILE"; then
+	if grep -qE '\b(7\.[789]|8\.[123])' "$VERFILE"; then
+		if test is_8 && is_os centos; then
+			# Force repo update
+			yum update -y centos-repos
+		fi
 		return 0
 	fi
 	echo -e "${BOLD}Updating OS. Old version detected!${EMODE}"
@@ -65,7 +78,7 @@ force_upgrade() {
 }
 
 install_yum_pkg() {
-	yum -y install "$@"
+	yum --disablerepo="apnscp*" -y install "$@"
 	STATUS=$?
 	if [[ $STATUS -ne 0 ]] ; then
 		fatal "failed to install RPM $*"
@@ -180,7 +193,10 @@ install_key() {
 }
 
 install() {
-	if is_8; then
+	local PACKAGES=(gawk ansible git nano screen)
+	if ! is_8; then
+		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils)
+	elif test -z "${DEBUG+x}"; then
 		fatal "CentOS/RHEL 8 is not supported yet"
 	fi
 	force_upgrade
@@ -189,7 +205,7 @@ install() {
 	elif is_os redhat; then
 		rpm -Uhv "$RHEL_EPEL_URL" || true
 	fi
-	install_yum_pkg gawk ansible libselinux-python git yum-plugin-priorities yum-plugin-fastestmirror nano yum-utils screen
+	install_yum_pkg "${PACKAGES[@]}"
 	install_apnscp_rpm
 	install_dev
 	echo "Switching to stage 2 bootstrapper..."
