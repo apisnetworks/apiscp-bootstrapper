@@ -69,7 +69,7 @@ force_upgrade() {
 	if grep -qE '\b(7\.[789]|8\.[123])' "$VERFILE"; then
 		if test is_8 && is_os centos; then
 			# Force repo update
-			yum update -y centos-repos
+			yum update --disablerepo="apnscp*" -y centos-repos
 		fi
 		return 0
 	fi
