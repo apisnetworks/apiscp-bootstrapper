@@ -43,7 +43,7 @@ is_os() {
 is_8() {
 	local FILE=/etc/centos-release
 	[[ -f /etc/redhat-release ]] && FILE=/etc/redhat-release
-	grep -qE '\b8\.' $FILE
+	grep -qE '\s8\.' $FILE
 	return $?
 }
 
