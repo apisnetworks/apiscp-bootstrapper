@@ -196,8 +196,6 @@ install() {
 	local PACKAGES=(gawk ansible git nano screen)
 	if ! is_8; then
 		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils)
-	elif test -z "${DEBUG+x}"; then
-		fatal "CentOS/RHEL 8 is not supported yet"
 	fi
 	force_upgrade
 	if is_os centos; then
