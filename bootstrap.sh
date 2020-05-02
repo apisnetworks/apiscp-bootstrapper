@@ -60,6 +60,7 @@ APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-$(as_major).noarch.rpm"
 RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(as_major).noarch.rpm"
 
 test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "apnscp already installed"
+test -n "${DEBUG+x}" && EXTRA_VARS+=("apnscp_update_policy='edge'")
 
 force_upgrade() {
 	VERFILE="/etc/centos-release"
