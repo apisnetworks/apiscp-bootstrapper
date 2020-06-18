@@ -239,7 +239,9 @@ install_dev() {
 			# Incremental deepening is broken in CentOS 7.x
 			git fetch --depth=100
 		fi
-		git checkout "$(git for-each-ref --sort=taggerdate --format '%(tag)' refs/tags | grep '^v' | tail -n 1)"
+		git checkout master
+		# Switch back after .44
+		# git checkout "$(git for-each-ref --sort=taggerdate --format '%(tag)' refs/tags | grep '^v' | tail -n 1)"
 	else
 		git clone --bare --depth=1 --branch "$RELEASE" "$APNSCP_REPO" .git
 		git config --unset core.bare
