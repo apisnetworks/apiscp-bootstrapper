@@ -248,7 +248,7 @@ install_dev() {
 		git reset --hard
 	fi
 	git submodule update --init --recursive
-	"$APNSCP_HOME"/build/set-repo-user.sh
+	[[ -f "$APNSCP_HOME"/build/set-repo-user.sh ]] && "$APNSCP_HOME"/build/set-repo-user.sh
 	pushd $APNSCP_HOME/config
 	find . -type f -iname '*.dist' | while read -r file ; do cp "$file" "${file%.dist}" ; done
 	popd
