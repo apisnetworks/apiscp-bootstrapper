@@ -234,7 +234,7 @@ install_dev() {
 		# Provide commit history for EDGE to revert back to last tagged release after install
 		# "git describe" fails to find divergence without
 		if [[ "$(as_major)" != "7" ]]; then
-			git fetch --shallow-since="$(git for-each-ref --sort=taggerdate --format '%(tag) %(creatordate:format:%s)' refs/tags | grep '^v' | tail -n 1 | cut -d' ' -f2)"
+			git fetch --shallow-since="$(git for-each-ref --sort=taggerdate --format '%(tag) %(creatordate:format:%s)' refs/tags | grep '^v' | tail -n 2 | head -n 1 | cut -d' ' -f2)"
 		else
 			# Incremental deepening is broken in CentOS 7.x
 			git fetch --depth=100
