@@ -138,13 +138,16 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
 * Nexus Bytes
     * **Install**: 0:46:27, **Backend**: 11682 requests/second**†** (3 GB, 2x Ryzen 9 3950X - 6987 bogomips)
     * **Install**: 0:44:56, **Backend**: 9182 requests/second**†** (3 GB, 2x Ryzen 9 3900X - 7586 bogomips)
+* Oracle
+    * VM.Standard.E2.1.Micro
+        * **Install**: 1:56:11, **Backend**: 2515 requests/second**†** (1 GB, 2x EPYC 7551 - 3992 bogomips)
 * OVH
     * **Install:** 1:22:54, **Backend:** 7232 requests/second (2 GB, 1x "Haswell, no TSX" - 6185 bogomips)
     * **Install:** 1:23:10, **Backend:** 16858 requests/second (SP-32 Server [Xeon E3-1270v6, 32GB RAM, 2x 450 NVMe in SoftRAID 1])
 * UpCloud
     * **Install:** 1:24:17, **Backend:** 11458 requests/second (2 GB, 1x Xeon Gold 6136 - 5985 bogomips)
     * **Install:** 0:48:56, **Backend:** 8586 requests/second**†** (4 GB, 2x Xeon Gold 6136 - 5985 bogomips)
-    * **Install:** 0:39:05, **Backend:** 9860 requests/second**†** (4 GB, 2x EPYC 7542 - 5789 bogomips)
+    * **Install:** 0:39:05, **Backend:** 9860 requests/second**†** (4 GB, 2x EPYC 7542 - 5800 bogomips)
 * Virmach
     * **Install:** 3:27:12, **Backend:** 1302 requests/second (4 GB, 3x "QEMU Virtual CPU" - 4399 bogomips)
 * Vultr
