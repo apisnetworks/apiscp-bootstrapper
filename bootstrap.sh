@@ -59,7 +59,8 @@ as_major() {
 APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-$(as_major).noarch.rpm"
 RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(as_major).noarch.rpm"
 
-test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "apnscp already installed"
+test "$(id -u)" -ne 0 && fatal "ApisCP installer must be run as root"
+test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "ApisCP already installed"
 test -n "${DEBUG+x}" && EXTRA_VARS+=("apnscp_update_policy='edge'") && RELEASE=${RELEASE:-master}
 
 force_upgrade() {
@@ -156,7 +157,7 @@ save_exit() {
 activate_key() {
 	KEY=$1
 	CN=${2:+/$2}
-	[[ ${#KEY} -ge 10 ]] || fatal "Invalid activation key. Visit https://my.apnscp.com to purchase a key"
+	[[ ${#KEY} -ge 10 ]] || fatal "Invalid activation key. Visit https://my.apiscp.com to purchase a key"
 	fetch_license /activate/"$KEY""$CN"
 	return 0
 }
@@ -275,7 +276,7 @@ while getopts "hs:k:t" opt ; do
 
 		"h")
 			echo -e "${BOLD}Usage${EMODE}: $(basename "$0") [-s OPTION=VALUE...] [-k KEYFILE] | <ACTIVATION KEY>\n"
-			echo "Install apnscp release. Either a key file in PEM format required (license.pem)"
+			echo "Install ApisCP release. Either a key file in PEM format required (license.pem)"
 			echo "or if a fresh license activated, the license key necessary"
 			exit 1
 		;;
