@@ -125,6 +125,9 @@ Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 m
         * **Install:** 1:54:18, **Backend:** 3730 requests/second (16 GB, 4x E5-2673 v3 - 4788 bogomips)
 * DigitalOcean
     * **Install:** 1:40:55, **Backend:** 6234 requests/second (2 GB, 1x E5-2650 - 4399 bogomips)
+* Genesis
+    * c6s.large
+        * **Install**: 0:40:46, **Backend**: 9200 requests/second**†** (4 GB, 1x E-2288G - 7392 bogomips)
 * Hetzner
     * **Install:** 1:05:52, **Backend:** 11397 requests/second (2 GB, 1x Skylake, IBRS - 4199 bogomips)
     * **Install:** 1:26:13, **Backend:** 10776 requests/second (2 GB, 1x Skylake, IBRS - 4199 bogomips)
