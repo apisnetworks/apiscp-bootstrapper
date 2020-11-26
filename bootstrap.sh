@@ -12,10 +12,11 @@ LOG_PATH="${LOG_PATH:-/root/apnscp-bootstrapper.log}"
 WRAPPER=${WRAPPER:-""}
 RELEASE="${RELEASE:-""}"
 APNSCP_VARS_FILE="${APNSCP_HOME}/resources/playbooks/apnscp-vars.yml"
+ANSIBLE_BIN=${ANSIBLE_BIN:-ansible-playbook}
 #PYTHON_VERSION="python2.7"
 #STRATEGY_PLUGIN_DIR="/usr/lib/${PYTHON_VERSION}/site-packages/ansible_mitogen/plugins/strategy"
 BOOTSTRAP_STUB="/root/resume_apnscp_setup.sh"
-BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
+BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER $ANSIBLE_BIN -l localhost -c local bootstrap.yml"
 KEY_UA="apnscp bootstrapper"
 EXTRA_VARS=()
 BOLD="\e[1m"
