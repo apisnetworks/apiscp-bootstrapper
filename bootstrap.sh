@@ -13,10 +13,11 @@ LOG_PATH="${LOG_PATH:-/root/apnscp-bootstrapper.log}"
 WRAPPER=${WRAPPER:-""}
 RELEASE="${RELEASE:-""}"
 APNSCP_VARS_FILE="${APNSCP_HOME}/resources/playbooks/apnscp-vars.yml"
+ANSIBLE_BIN=${ANSIBLE_BIN:-ansible-playbook}
 #PYTHON_VERSION="python2.7"
 #STRATEGY_PLUGIN_DIR="/usr/lib/${PYTHON_VERSION}/site-packages/ansible_mitogen/plugins/strategy"
 BOOTSTRAP_STUB="/root/resume_apnscp_setup.sh"
-BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER ansible-playbook -l localhost -c local bootstrap.yml"
+BOOTSTRAP_COMMAND="cd "${APNSCP_HOME}/resources/playbooks" && env ANSIBLE_LOG_PATH=${LOG_PATH} BOOTSTRAP_SH=${BOOTSTRAP_STUB} $WRAPPER $ANSIBLE_BIN -l localhost -c local bootstrap.yml"
 KEY_UA="apnscp bootstrapper"
 EXTRA_VARS=()
 BOLD="\e[1m"
@@ -44,7 +45,7 @@ is_os() {
 is_8() {
 	local FILE=/etc/centos-release
 	[[ -f /etc/redhat-release ]] && FILE=/etc/redhat-release
-	grep -qE '\s8\.' $FILE
+	grep -qE '\s8(\.|$)' $FILE
 	return $?
 }
 
@@ -161,7 +162,7 @@ save_exit() {
 activate_key() {
 	KEY=$1
 	CN=${2:+/$2}
-	[[ ${#KEY} -ge 10 ]] || fatal "Invalid activation key. Visit https://my.apnscp.com to purchase a key"
+	[[ ${#KEY} -ge 10 ]] || fatal "Invalid activation key. Visit https://my.apiscp.com to purchase a key"
 	fetch_license /activate/"$KEY""$CN"
 	return 0
 }
@@ -200,8 +201,11 @@ install_key() {
 
 install() {
 	local PACKAGES=(gawk ansible git nano screen)
+	#
 	if ! is_8; then
-		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils)
+		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils python-pip)
+	else
+		PACKAGES+=(python3-pip)
 	fi
 	force_upgrade
 	if is_os centos; then
@@ -232,14 +236,25 @@ install_dev() {
 	if test "$RELEASE" == ""; then
 		git init
 		git remote add origin "$APNSCP_REPO"
-		git fetch --tags --depth=1
-		git checkout "$(git for-each-ref --sort=taggerdate --format '%(tag)' refs/tags | grep '^v' | tail -n 1)"
+		git fetch --tags
+		# Provide commit history for EDGE to revert back to last tagged release after install
+		# "git describe" fails to find divergence without
+		if [[ "$(as_major)" != "7" ]]; then
+			git fetch --shallow-since="$(git for-each-ref --sort=taggerdate --format '%(tag) %(creatordate:format:%s)' refs/tags | grep '^v' | tail -n 2 | head -n 1 | cut -d' ' -f2)"
+		else
+			# Incremental deepening is broken in CentOS 7.x
+			git fetch --depth=100
+		fi
+		git checkout master
+		# Switch back after .44
+		# git checkout "$(git for-each-ref --sort=taggerdate --format '%(tag)' refs/tags | grep '^v' | tail -n 1)"
 	else
 		git clone --bare --depth=1 --branch "$RELEASE" "$APNSCP_REPO" .git
 		git config --unset core.bare
 		git reset --hard
 	fi
 	git submodule update --init --recursive
+	[[ -f "$APNSCP_HOME"/build/set-repo-user.sh ]] && "$APNSCP_HOME"/build/set-repo-user.sh
 	pushd $APNSCP_HOME/config
 	find . -type f -iname '*.dist' | while read -r file ; do cp "$file" "${file%.dist}" ; done
 	popd
@@ -266,7 +281,7 @@ while getopts "hs:k:t" opt ; do
 
 		"h")
 			echo -e "${BOLD}Usage${EMODE}: $(basename "$0") [-s OPTION=VALUE...] [-k KEYFILE] | <ACTIVATION KEY>\n"
-			echo "Install apnscp release. Either a key file in PEM format required (license.pem)"
+			echo "Install ApisCP release. Either a key file in PEM format required (license.pem)"
 			echo "or if a fresh license activated, the license key necessary"
 			exit 1
 		;;
