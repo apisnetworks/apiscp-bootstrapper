@@ -3,6 +3,7 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+YUM_BIN=/usr/bin/yum
 APNSCP_REPO="${APNSCP_REPO:-https://gitlab.com/apisnetworks/apnscp.git}"
 LICENSE_URL="https://bootstrap.apnscp.com/"
 APNSCP_HOME=/usr/local/apnscp
@@ -60,7 +61,11 @@ APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-$(as_major).noarch.rpm"
 RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(as_major).noarch.rpm"
 
 test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "apnscp already installed"
-test -n "${DEBUG+x}" && EXTRA_VARS+=("apnscp_update_policy='edge'")
+test -n "${DEBUG+x}" && EXTRA_VARS+=("apnscp_update_policy='edge'") && RELEASE=${RELEASE:-master}
+
+if test is_8; then
+	YUM_BIN="/usr/bin/dnf"
+fi
 
 force_upgrade() {
 	VERFILE="/etc/centos-release"
@@ -70,16 +75,16 @@ force_upgrade() {
 	if grep -qE '\b(7\.[789]|8\.[123])' "$VERFILE"; then
 		if test is_8 && is_os centos; then
 			# Force repo update
-			yum update --disablerepo="apnscp*" -y centos-repos
+			$YUM_BIN update --disablerepo="apnscp*" -y centos-repos
 		fi
 		return 0
 	fi
 	echo -e "${BOLD}Updating OS. Old version detected!${EMODE}"
-	yum upgrade -y
+	$YUM_BIN upgrade -y
 }
 
 install_yum_pkg() {
-	yum --disablerepo="apnscp*" -y install "$@"
+	$YUM_BIN --disablerepo="apnscp*" -y install "$@"
 	STATUS=$?
 	if [[ $STATUS -ne 0 ]] ; then
 		fatal "failed to install RPM $*"
@@ -166,7 +171,7 @@ fetch_license() {
 	TMPKEY=$(mktemp license.XXXXXX)
 	CODE=""
 	ERROR=""
-	yum clean all
+	$YUM_BIN clean all
 	install_yum_pkg curl
 
 	# Capturing stderr and stdout and the HTTP status message is a little harder than anticipated
