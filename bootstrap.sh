@@ -73,10 +73,14 @@ force_upgrade() {
 	if is_os redhat; then
 		VERFILE="/etc/redhat-release"
 	fi
-	if grep -qE '\b(7\.[789]|8\.[123])' "$VERFILE"; then
-		if test is_8 && is_os centos; then
+	if grep -qE '\b(7\.[789]|8\.)' "$VERFILE"; then
+		if is_os centos; then
 			# Force repo update
-			$YUM_BIN update --disablerepo="apnscp*" -y centos-repos
+			REPO=centos-repos
+			if grep -qE '\b8\.([3-9]|1[0-9])' "$VERFILE"; then
+				REPO="centos-linux-repos"
+			fi
+			$YUM_BIN update --disablerepo="apnscp*" -y "$REPO"
 		fi
 		return 0
 	fi
@@ -200,7 +204,7 @@ install_key() {
 }
 
 install() {
-	local PACKAGES=(gawk ansible git nano screen)
+	local PACKAGES=(rsyslog gawk ansible git nano screen)
 	#
 	if ! is_8; then
 		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils python-pip)
@@ -216,6 +220,7 @@ install() {
 	install_yum_pkg "${PACKAGES[@]}"
 	install_apnscp_rpm
 	install_dev
+	systemctl enable --now rsyslog
 	echo "Switching to stage 2 bootstrapper..."
 	echo ""
 	sleep 1
