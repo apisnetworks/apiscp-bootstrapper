@@ -209,7 +209,7 @@ install() {
 	if ! is_8; then
 		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils python-pip)
 	else
-		PACKAGES+=(python3-pip)
+		PACKAGES+=(python3-libselinux python3-pip)
 	fi
 	force_upgrade
 	if is_os centos; then
