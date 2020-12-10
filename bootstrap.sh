@@ -49,6 +49,12 @@ is_8() {
 	return $?
 }
 
+is_stream() {
+	local FILE=/etc/centos-release
+	[[ -f $FILE ]] && grep -qE " [[:digit:]]{1,}$" $FILE
+	return $?
+}
+
 as_major() {
 	is_8
 	case $? in
@@ -211,7 +217,9 @@ install() {
 	else
 		PACKAGES+=(python3-libselinux python3-pip)
 	fi
-	force_upgrade
+	if ! is_stream ; then
+		force_upgrade
+	fi
 	if is_os centos; then
 		install_yum_pkg epel-release
 	elif is_os redhat; then
