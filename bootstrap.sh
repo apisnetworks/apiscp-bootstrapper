@@ -95,7 +95,9 @@ force_upgrade() {
 }
 
 install_yum_pkg() {
-	$YUM_BIN --disablerepo="apnscp*" -y install "$@"
+	EPEL=""
+	[[ -f /etc/yum.repos.d/epel-testing.repo ]] && EPEL="--enablerepo=epel-testing"
+	$YUM_BIN $EPEL --disablerepo="apnscp*" -y install "$@"
 	STATUS=$?
 	if [[ $STATUS -ne 0 ]] ; then
 		fatal "failed to install RPM $*"
