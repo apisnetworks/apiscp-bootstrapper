@@ -219,9 +219,7 @@ install() {
 	else
 		PACKAGES+=(python3-libselinux python3-pip)
 	fi
-	if ! is_stream ; then
-		force_upgrade
-	fi
+	force_upgrade
 	if is_os centos; then
 		install_yum_pkg epel-release
 	elif is_os redhat; then
@@ -230,6 +228,8 @@ install() {
 	install_yum_pkg "${PACKAGES[@]}"
 	install_apnscp_rpm
 	install_dev
+	# Conflicts with libcurl-devel
+	rpm -e libcurl-minimal || true
 	systemctl enable --now rsyslog
 	echo "Switching to stage 2 bootstrapper..."
 	echo ""
