@@ -79,7 +79,7 @@ force_upgrade() {
 	if is_os redhat; then
 		VERFILE="/etc/redhat-release"
 	fi
-	if grep -qE '\b(7\.[789]|8\.)' "$VERFILE"; then
+	if grep -qE '\b(8\.[1-9])' "$VERFILE"; then
 		if is_os centos; then
 			# Force repo update
 			REPO=centos-repos
