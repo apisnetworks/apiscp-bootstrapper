@@ -91,7 +91,7 @@ force_upgrade() {
 		return 0
 	fi
 	echo -e "${BOLD}Updating OS. Old version detected!${EMODE}"
-	$YUM_BIN upgrade -y
+	$YUM_BIN upgrade -y --disablerepo="apnscp*"
 }
 
 install_yum_pkg() {
