@@ -67,11 +67,15 @@ as_major() {
 APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-$(as_major).noarch.rpm"
 RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(as_major).noarch.rpm"
 
-test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "apnscp already installed"
+test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "ApisCP already installed"
 test -n "${DEBUG+x}" && EXTRA_VARS+=("apnscp_update_policy='edge'") && RELEASE=${RELEASE:-master}
 
 if is_8; then
 	YUM_BIN="/usr/bin/dnf"
+fi
+
+if test $EUID -ne 0; then
+	fatal "This script must be run as root"
 fi
 
 force_upgrade() {
@@ -229,8 +233,8 @@ install() {
 	install_apnscp_rpm
 	install_dev
 	# Conflicts with libcurl-devel
-	rpm -e libcurl-minimal || true
-	systemctl enable --now rsyslog
+	rpm -e libcurl-minimal 2> /dev/null || true
+	systemctl enable --now rsyslog || fatal "OS image is busted. systemd is in unusable state. Cannot proceed."
 	echo "Switching to stage 2 bootstrapper..."
 	echo ""
 	sleep 1
