@@ -78,6 +78,8 @@ if test $EUID -ne 0; then
 	fatal "This script must be run as root"
 fi
 
+umask 0022
+
 force_upgrade() {
 	VERFILE="/etc/centos-release"
 	if is_os redhat; then
