@@ -225,7 +225,6 @@ install() {
 	else
 		PACKAGES+=(python3-libselinux python3-pip python3-netaddr)
 	fi
-	force_upgrade
 	if is_os centos; then
 		install_yum_pkg epel-release
 	elif is_os redhat; then
@@ -236,13 +235,13 @@ install() {
 	install_dev
 	# Conflicts with libcurl-devel
 	rpm -e libcurl-minimal 2> /dev/null || true
-	systemctl enable --now rsyslog || fatal "OS image is busted. systemd is in unusable state. Cannot proceed."
-	echo "Switching to stage 2 bootstrapper..."
+	systemctl enable --now rsyslog || (rm -rf "$APNSCP_HOME" && fatal "OS image is faulty. systemd cannot be accessed. Reboot server, then restart installation.")
+	echo "Switching to stage 2 bootstrapper..."i
 	echo ""
 	sleep 1
 	set_vars
 	prompt_edit && save_exit
-	pushd $APNSCP_HOME/resources/playbooks
+	pushd "$APNSCP_HOME"/resources/playbooks
 	trap 'fatal "Stage 2 bootstrap failed\nRun '\''$BOOTSTRAP_COMMAND'\'' to resume"' EXIT
 	eval "$BOOTSTRAP_COMMAND"
 	trap - EXIT
@@ -276,7 +275,7 @@ install_dev() {
 	fi
 	git submodule update --init --recursive
 	[[ -f "$APNSCP_HOME"/build/set-repo-user.sh ]] && "$APNSCP_HOME"/build/set-repo-user.sh
-	pushd $APNSCP_HOME/config
+	pushd "$APNSCP_HOME"/config
 	find . -type f -iname '*.dist' | while read -r file ; do cp "$file" "${file%.dist}" ; done
 	popd
 }
@@ -322,6 +321,8 @@ while getopts "hs:k:t" opt ; do
 	esac
 done
 shift $((OPTIND-1))
+
+force_upgrade
 
 if [[ "$MODE" != "install" ]]; then
 	[[ $# != 0 ]] && activate_key "$1" "${2:-}"
