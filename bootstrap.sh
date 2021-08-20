@@ -38,6 +38,10 @@ is_os() {
 			return $?;;
 		"centos") [[ -f /etc/centos-release ]] && grep -q "CentOS" /etc/centos-release
 			return $?;;
+		"alma") [[ -f /etc/redhat-release ]] && grep -q "AlmaLinux" /etc/redhat-release
+			return $?;;
+		"rocky") [[ -f /etc/redhat-release ]] && grep -q "Rocky Linux" /etc/redhat-release
+			return $?;;
 		*) fatal "Unknown OS $1"
 	esac
 }
@@ -85,19 +89,28 @@ force_upgrade() {
 	if is_os redhat; then
 		VERFILE="/etc/redhat-release"
 	fi
-	if grep -qE '\b(8\.[1-9])' "$VERFILE"; then
-		if is_os centos; then
-			# Force repo update
-			REPO=centos-repos
-			if grep -qE '\b8\.([3-9]|1[0-9])' "$VERFILE"; then
-				REPO="centos-linux-repos"
-			fi
-			$YUM_BIN update --disablerepo="apnscp*" -y "$REPO"
+
+	if ! grep -qE '\b(8\.[1-9])' "$VERFILE"; then
+		echo -e "${BOLD}Updating OS. Old version detected!${EMODE}"
+		$YUM_BIN upgrade -y --disablerepo="apnscp*"
+		return $?
+	fi
+
+	REPO=centos-repos
+	if is_os centos; then
+		if grep -qE '\b8\.([3-9]|1[0-9])' "$VERFILE"; then
+			REPO="centos-linux-repos"
 		fi
+	elif is_os alma; then
+		REPO="almalinux-release"
+	elif is_os rocky; then
+		REPO="rockylinux-release"
+	else
 		return 0
 	fi
-	echo -e "${BOLD}Updating OS. Old version detected!${EMODE}"
-	$YUM_BIN upgrade -y --disablerepo="apnscp*"
+
+	$YUM_BIN update --disablerepo="apnscp*" -y "$REPO"
+	return 0
 }
 
 install_yum_pkg() {
@@ -225,9 +238,9 @@ install() {
 	else
 		PACKAGES+=(python3-libselinux python3-pip python3-netaddr)
 	fi
-	if is_os centos; then
+	if ! is_os redhat; then
 		install_yum_pkg epel-release
-	elif is_os redhat; then
+	else
 		rpm -Uhv "$RHEL_EPEL_URL" || true
 	fi
 	install_yum_pkg "${PACKAGES[@]}"
