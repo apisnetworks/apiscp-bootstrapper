@@ -109,7 +109,9 @@ force_upgrade() {
 		return 0
 	fi
 
+	# Force repo update as necessary
 	$YUM_BIN update --disablerepo="apnscp*" -y "$REPO"
+	$YUM_BIN update --disablerepo="apnscp*" -y
 	return 0
 }
 
