@@ -104,7 +104,7 @@ force_upgrade() {
 	elif is_os alma; then
 		REPO="almalinux-release"
 	elif is_os rocky; then
-		REPO="rockylinux-release"
+		REPO="rocky-release"
 	else
 		return 0
 	fi
