@@ -84,6 +84,17 @@ fi
 
 umask 0022
 
+set_selinux_context_types() {
+	[[ -f /usr/sbin/selinuxenabled ]] || return
+	test ! selinuxenabled && return
+	# Rocky creates .lock files as etc_t. shadow_t needed
+	LOCKS="shadow gshadow .pwd group passwd"
+	for LOCK in $LOCKS; do
+		[[ -f "/etc/${LOCK}.lock" ]] || continue
+		chcon -t shadow_t "/etc/${LOCK}.lock"
+	done
+}
+
 force_upgrade() {
 	VERFILE="/etc/centos-release"
 	if is_os redhat; then
@@ -337,6 +348,7 @@ while getopts "hs:k:t" opt ; do
 done
 shift $((OPTIND-1))
 
+set_selinux_context_types
 force_upgrade
 
 if [[ "$MODE" != "install" ]]; then
