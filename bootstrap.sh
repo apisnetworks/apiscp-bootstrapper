@@ -260,7 +260,11 @@ install() {
 	install_apnscp_rpm
 	install_dev
 	# Conflicts with libcurl-devel
-	rpm -e libcurl-minimal 2> /dev/null || true
+	if ! is_8; then
+		rpm -e libcurl-minimal 2> /dev/null || true
+	else
+		dnf install -y libcurl --allowerasing || true
+	fi
 	systemctl enable --now rsyslog || (rm -rf "$APNSCP_HOME" && fatal "OS image is faulty. systemd cannot be accessed. Reboot server, then restart installation.")
 	echo "Switching to stage 2 bootstrapper..."i
 	echo ""
