@@ -128,8 +128,11 @@ force_upgrade() {
 
 install_yum_pkg() {
 	EPEL=""
+	DISABLEREPO=""
 	[[ -f /etc/yum.repos.d/epel-testing.repo ]] && EPEL="--enablerepo=epel-testing"
-	$YUM_BIN $EPEL --disablerepo="apnscp*" -y install "$@"
+
+	[[ ! -f "$LICENSE_KEY" ]] && DISABLEREPO="apnscp*"
+	$YUM_BIN $EPEL --disablerepo="$DISABLEREPO" -y install "$@"
 	STATUS=$?
 	if [[ $STATUS -ne 0 ]] ; then
 		fatal "failed to install RPM $*"
@@ -244,7 +247,7 @@ install_key() {
 }
 
 install() {
-	local PACKAGES=(rsyslog gawk ansible git nano screen)
+	local PACKAGES=(rsyslog gawk git nano screen)
 	#
 	if ! is_8; then
 		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils python-pip python-netaddr)
@@ -259,6 +262,8 @@ install() {
 	install_yum_pkg "${PACKAGES[@]}"
 	install_apnscp_rpm
 	install_dev
+	# Fetch from apnscp repo
+	install_yum_pkg ansible
 	# Conflicts with libcurl-devel
 	if ! is_8; then
 		rpm -e libcurl-minimal 2> /dev/null || true
