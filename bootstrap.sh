@@ -127,12 +127,13 @@ force_upgrade() {
 }
 
 install_yum_pkg() {
+	# bash 3.x requires assignment for [@] dereferencing
 	declare -a ARGS
 
 	[[ -f /etc/yum.repos.d/epel-testing.repo ]] && ARGS+=("--enablerepo=epel-testing")
 	[[ ! -f "$LICENSE_KEY" ]] && ARGS+=("--disablerepo='apnscp*'")
-
-	$YUM_BIN "${ARGS[@]}" -y install "$@"
+	ARGS+=("--")
+	$YUM_BIN -y "${ARGS[@]}" install "$@"
 	STATUS=$?
 	if [[ $STATUS -ne 0 ]] ; then
 		fatal "failed to install RPM $*"
