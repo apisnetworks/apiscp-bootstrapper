@@ -249,7 +249,7 @@ install() {
 	if ! is_8; then
 		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils python-pip python-netaddr)
 	else
-		PACKAGES+=(python3-libselinux python3-pip python3-netaddr)
+		PACKAGES+=(python3-libselinux python3-pip python3-netaddr glibc-langpack-en)
 	fi
 	if ! is_os redhat; then
 		install_yum_pkg epel-release
