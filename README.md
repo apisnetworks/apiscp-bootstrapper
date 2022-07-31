@@ -77,7 +77,7 @@ exec $SHELL -i
 
 Then run the cpcmd helper,
 ```bash
-cpcmd config_set apnscp.debug true  ; sleep 5 ; cpcmd test_backend_performance ; cpcmd config_set apnscp.debug false
+cpcmd scope:set cp.debug true; systemctl restart apiscp; sleep 10; cpcmd test:backend-performance 100000; cpcmd scope:set apnscp.debug false
 ```
 
 debug mode will be temporarily enabled, which opens up access to the [test module](https://api.apnscp.com/class-Test_Module.html) API.
@@ -95,14 +95,10 @@ REMOTE="$(git config --get remote.origin.url)"
 git remote remove origin
 git remote add -f -t master origin "$REMOTE"
 git reset --hard origin/master
-cpcmd config_set apnscp.bootstrapper populate_filesystem_template true
-# Set any other Bootstrapper values from apnscp-vars.yml...
-# cpcmd config_set apnscp.bootstrapper varname varval
-upcp -sb
+cpcmd auth:change-password newadminpassword
+cpcmd common:set-email your@email.address
+env "BSARGS=--extra-vars='populate_filesystem_template=true'" upcp -sb
 # After Bootstrapper completes - it will take 5-30 minutes to do so
-cpcmd config_set apnscp.bootstrapper populate_filesystem_template auto
-cpcmd auth_change_password newadminpassword
-cpcmd common_set_email your@email.address
 ```
 
 `populate_filesystem_template` must be enabled to update any packages that have been added/removed in apnscp. Once everything is done, access [apnscp's interface](https://hq.apnscp.com/apnscp-pre-alpha-technical-release/#loggingintoapnscp) to get started.
@@ -111,58 +107,69 @@ cpcmd common_set_email your@email.address
 
 Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 minutes is impressive. These are stats taken from [Bootstrapper](https://github.com/apisnetworks/apnscp-playbooks) initial runs as bundled with part of [apnscp](https://apisnetworks.com). Note that as with shared hosting, or any shared resource, performance is adversely affected by oversubscription and noisy neighbors. Newer hypervisors show better benchmark numbers whereas older hypervisors show lower performance figures.
 
-* AWS
-    * t3.small
-        * **Install:** 1:15:48, **Backend:** 7331 requests/second (2 GB, 2x vCPU, 2.5 GHz, P-8175 - 5000 bogomips)
-    * Lightsail
-        * **Install:** 2:31:08, **Backend:** 1475 requests/second (2 GB, 1x E5-2676 - 4789 bogomips)
-* Azure
-    * B1ms
-        * **Install:** 4:39:00, **Backend:** 4477 requests/second (2 GB, 1x E5-2673 v4 - 4589 bogomips)
-    * D2s v3
-        * **Install:** 1:47:43, **Backend:** 3932 requests/second (8 GB, 2x E5-2673 v4 - 4589 bogomips)
-    * D4 v3
-        * **Install:** 1:54:18, **Backend:** 3730 requests/second (16 GB, 4x E5-2673 v3 - 4788 bogomips)
-* DigitalOcean
-    * **Install:** 1:40:55, **Backend:** 6234 requests/second (2 GB, 1x E5-2650 - 4399 bogomips)
-* Genesis
-    * c6s.large
-        * **Install**: 0:40:46, **Backend**: 9200 requests/second**†** (4 GB, 1x E-2288G - 7392 bogomips)
-* Hetzner
-    * **Install:** 1:05:52, **Backend:** 11397 requests/second (2 GB, 1x Skylake, IBRS - 4199 bogomips)
-    * **Install:** 1:26:13, **Backend:** 10776 requests/second (2 GB, 1x Skylake, IBRS - 4199 bogomips)
-* Katapult
-    * **Install**: 0:44:00, **Backend**: 10028 requests/second**†** (3 GB, 1x EPYC 7542 - 5800 bogomips)
-    * **Install**: 0:36:58, **Backend**: 9731 requests/second**†** (6 GB, 2x EPYC 7542 - 5800 bogomips)
-* Kimsufi
-    * **Install:** 2:22:56, **Backend:** 8242 requests/second (8 GB, 1x i3 2130, 2 TB HGST 7200 RPM)
-* Linode
-    * **Install:** 1:12:16, **Backend:** 8199 requests/second (2 GB, 1x E5-2697 - 4599 bogomips)
-* Nexus Bytes
-    * **Install**: 0:46:27, **Backend**: 11682 requests/second**†** (3 GB, 2x Ryzen 9 3950X - 6987 bogomips)
-    * **Install**: 0:44:56, **Backend**: 9182 requests/second**†** (3 GB, 2x Ryzen 9 3900X - 7586 bogomips)
-* Oracle
-    * VM.Standard.E2.1.Micro
-        * **Install**: 1:56:11, **Backend**: 2515 requests/second**†** (1 GB, 2x EPYC 7551 - 3992 bogomips)
-* OVH
-    * **Install:** 1:22:54, **Backend:** 7232 requests/second (2 GB, 1x "Haswell, no TSX" - 6185 bogomips)
-    * **Install:** 1:23:10, **Backend:** 16858 requests/second (SP-32 Server [Xeon E3-1270v6, 32GB RAM, 2x 450 NVMe in SoftRAID 1])
-* UpCloud
-    * **Install:** 1:24:17, **Backend:** 11458 requests/second (2 GB, 1x Xeon Gold 6136 - 5985 bogomips)
-    * **Install:** 0:48:56, **Backend:** 8586 requests/second**†** (4 GB, 2x Xeon Gold 6136 - 5985 bogomips)
-    * **Install:** 0:39:05, **Backend:** 9860 requests/second**†** (4 GB, 2x EPYC 7542 - 5800 bogomips)
-* Virmach
-    * **Install:** 3:27:12, **Backend:** 1302 requests/second (4 GB, 3x "QEMU Virtual CPU" - 4399 bogomips)
-* Vultr
-    * **Install:** 0:59:09, **Backend:** 11568 requests/second (2 GB, 1x "Virtual CPU" - 5187 bogomips)
+*Updated July 30, 2022*
 
-**†**: benchmark of ApisCP utilizing a 3.2 backend on PHP 7.2 after October 2019. Critical code refactoring has created an artificial limit around 10k requests/second with blocking I/O.
+* **AWS**
+    * t3.small (*2 GB **†**, 2x Xeon Platinum 8259CL @ 2.5 GHz; 5000 bogomips*)
+        * **Install** 00:55:47 **Backend** 6026 req/sec **Resync** 54.4 s
+    * c3.large (*3.75 GB, 2x Xeon E5-2680 v2 @ 2.8 GHz; 5600 bogomips*)
+        * **Install** 1:01:14.4 **Backend** 3779 req/sec **Resync** 58.6 s
+    * 2 GB Lightsail  (*2 GB; 1x Xeon E5-2686 v4 @ 2.3 GHz; 4600 bogomips*)
+        * **Install** 01:02:27 **Backend** 5309 req/sec **Resync** 59.8 s
+* **Azure**
+    * B1ms (*2 GB **†**, 1x Xeon Platinum 8370C @ 2.8 GHz; 5587 bogomips*)
+        * **Install** 00:55:24 **Backend** 8661 req/sec **Resync** 48.4 s
+    * D4as_v5 (*16 GB, 4x AMD EPYC 7763 @ 2.9 GHz; 4891 bogomips*)
+        * **Install** 00:33:48.9 **Backend** 10396 req/sec **Resync** 32.9 s
+    * F4s v2 (*8 GB, 4x Xeon Platinum 8370C @ 2.8 GHz; 2793 bogomips*)
+        * **Install** 00:39:36 **Backend** 8368 req/sec **Resync** 40.8 s
+* **Contabo**
+    * **Cloud VPS S** (*8 GB, 4x AMD EPYC 7282 @ 2.8 GHz; 5600 bogomips*)
+        * **Install** 00:44:05 **Backend** 4018 req/sec **Resync** 68.6 s
+* **DigitalOcean**
+    * Shared CPU (Basic, Regular w/ SSD) (*2 GB, 1x "DO-Regular" @ 2.3 GHz; 4589 bogomips*)
+        * **Install** 1:33:55 **Backend** 4253 req/sec **Resync** 107.0 s
+    * CPU Optimized (*4 GB, 2x Xeon Platinum 8168 @ 2.7 GHz; 5387 bogomips*)
+        * **Install** 00:48:10 **Backend** 5252 req/sec **Resync** 44.0 s
+* **Hetzner**
+    * CPX11 (*2 GB **†**, 2x AMD EPYC @ 2.4 GHz; 4891 bogomips*)
+        * **Install** 1:33:55 **Backend** 6701 req/sec **Resync** 62.6 s
+    * CCX12 (*8 GB, 2x AMD EPYC @ 2.4 GHz; 4981 bogomips*)
+        * **Install** 00:38:02 **Backend** 8486 req/sec **Resync** 33.2 s
+* **Katapult**
+    * ROCK-3 (*3 GB, 1 AMD EPYC 7642 @ 2.3 GHz; 2900 bogomips*)
+        * **Install** 00:40:38 **Backend** 10006 req/sec **Resync** 33.3 s
+    * ROCK-24 (*24 GB, 8x AMD EPYC 7542 @ 2.9 GHz; 5800 bogomips*)
+        * **Install** 00:23:21 **Backend** 11284 req/sec **Resync** 31.1 s
+* **Linode**
+    * Linode 2 GB (*2 GB, 1x AMD EPYC 7642 @ 2.3 GHz; 4600 bogomips*)
+        * **Install** 00:45:46 **Backend** 7717 req/sec **Resync** 66.1 s
+    * Dedicated 4 GB (*4 GB, 1x AMD EPYC 7642 @ 2.3 GHz; 4000 bogomips*)
+        * **Install** 00:51:11 **Backend** 7935 req/sec **Resync** 48.5 s
+* **OVH**
+    * VPS Value 1 (*2 GB **†**, 1x Intel Core (Haswell, no TSX) @ 2.4 GHz; 4789 bogomips*)
+        * **Install** 1:04:25 **Backend** 5548 req/sec **Resync** 49.9 s
+* **UpCloud**
+    * 2 GB (*2GB, 1x AMD EPYC 7542 @ 2.9 GHz; 5789 bogomips*)
+        * **Install** 00:52:51 **Backend** 9794 req/sec **Resync** 35.6 s
+* **Virmach**
+    * NVMe4G (*4 GB, 3x Ryzen 9 3900X @ 3.8 GHz; 7600 bogomips*)
+        * **Install** 00:31:26 **Backend** 10885 req/sec **Resync** 35.6 s
+* **Vultr**
+    * Intel (Regular Performance) (*2 GB; 1x Intel Xeon Processor (Skylake, IBRS) @ 2.593 GHz; 5188 bogomips*)
+        * **Install** 00:51:30 **Backend** 7421 req/sec **Resync** 49.6 s
+    * Intel (High Performance) (*2 GB; 1x Xeon Processor (Cascadelake) @ 2.9 GHz; 5986 bogomips*)
+        * **Install** 00:48:45 **Backend** 7784 req/sec **Resync** 44.4 s
+    * CPU Optimized Cloud Compute (*2 GB; 1x AMD EPYC-Rome Processor @ 2 GHz; 3992 bogomips*)
+        * **Install** 00:48:21 **Backend** 8735 req/sec **Resync** 115.2 s
+
+**†**: Available memory less than minimum threshold of 1790 MB. `limit_memory_2gb` overridden to accommodate.
 
 ## Storage benchmark
 FST replication is the best indicator of filesystem performance in ApisCP. This can be achieved using yum-post, which queries all installed packages from PostgreSQL, enumerates contents (`rpm -ql`), then creates the analogous file structure within /home/virtual/FILESYSTEMTEMPLATE.
 
 ```bash
-time (/usr/local/apnscp/bin/scripts/yum-post.php resync --force > /dev/null)
+cpcmd scope:set cp.debug false; systemctl restart apiscp; sleep 10; time (/usr/local/apnscp/bin/scripts/yum-post.php resync --force 2> /dev/null)
 ```
 
 A sample result from Vultr's 2 GB machine in Atlanta:
