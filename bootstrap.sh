@@ -46,10 +46,23 @@ is_os() {
 	esac
 }
 
+is_9() {
+	local FILE=/etc/redhat-release
+	grep -qE '\s9(\.|$)' $FILE
+	return $?
+}
+
 is_8() {
 	local FILE=/etc/centos-release
 	[[ -f /etc/redhat-release ]] && FILE=/etc/redhat-release
 	grep -qE '\s8(\.|$)' $FILE
+	return $?
+}
+
+is_7() {
+	local FILE=/etc/centos-release
+	[[ -f /etc/redhat-release ]] && FILE=/etc/redhat-release
+	grep -qE '\s7(\.|$)' $FILE
 	return $?
 }
 
@@ -60,21 +73,25 @@ is_stream() {
 }
 
 as_major() {
-	is_8
-	case $? in
-		0) echo "8" ;;
-		1) echo "7" ;;
-	esac
+	if is_9; then
+		# Pending
+		echo ""
+	elif is_8; then
+		echo "8"
+	else
+		echo "7"
+	fi
 }
 
 # Further adjustments unnecessary
 APNSCP_YUM="http://yum.apnscp.com/apnscp-release-latest-$(as_major).noarch.rpm"
 RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(as_major).noarch.rpm"
 
+[[ -z "$(as_major)" ]] && fatal "Unsupported OS release"
 test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "ApisCP already installed"
 test -n "${DEBUG+x}" && EXTRA_VARS+=("apnscp_update_policy='edge'") && RELEASE=${RELEASE:-master}
 
-if is_8; then
+if ! is_7; then
 	YUM_BIN="/usr/bin/dnf"
 fi
 
@@ -96,12 +113,10 @@ set_selinux_context_types() {
 }
 
 force_upgrade() {
-	VERFILE="/etc/centos-release"
-	if is_os redhat; then
-		VERFILE="/etc/redhat-release"
-	fi
+	local FILE=/etc/centos-release
+	[[ -f /etc/redhat-release ]] && FILE=/etc/redhat-release
 
-	if ! grep -qE '\b(8\.[1-9])' "$VERFILE"; then
+	if ! grep -qE '\b(8\.[1-9]|9\.1)' "$FILE"; then
 		echo -e "${BOLD}Updating OS. Old version detected!${EMODE}"
 		$YUM_BIN upgrade -y --disablerepo="apnscp*"
 		return $?
@@ -109,7 +124,7 @@ force_upgrade() {
 
 	REPO=centos-repos
 	if is_os centos; then
-		if grep -qE '\b8\.([3-9]|1[0-9])' "$VERFILE"; then
+		if grep -qE '\b8\.([3-9]|1[0-9])' "$FILE"; then
 			REPO="centos-linux-repos"
 		fi
 	elif is_os alma; then
@@ -250,10 +265,10 @@ install_key() {
 install() {
 	local PACKAGES=(rsyslog gawk git nano screen)
 	#
-	if ! is_8; then
+	if is_7; then
 		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils python-pip python-netaddr)
 	else
-		PACKAGES+=(python3-libselinux python3-pip python3-netaddr glibc-langpack-en)
+		PACKAGES+=(python3-jmespath python3-libselinux python3-pip python3-netaddr glibc-langpack-en)
 	fi
 	if ! is_os redhat; then
 		install_yum_pkg epel-release
@@ -272,7 +287,7 @@ install() {
 		dnf install -y libcurl --allowerasing || true
 	fi
 	systemctl enable --now rsyslog || (rm -rf "$APNSCP_HOME" && fatal "OS image is faulty. systemd cannot be accessed. Reboot server, then restart installation.")
-	echo "Switching to stage 2 bootstrapper..."i
+	echo "Switching to stage 2 bootstrapper..."
 	echo ""
 	sleep 1
 	set_vars
