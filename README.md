@@ -1,26 +1,26 @@
-[![Build Status](https://travis-ci.org/apisnetworks/apnscp-bootstrapper.svg?branch=master)](https://travis-ci.org/apisnetworks/apnscp-bootstrapper)
+[![Build Status](https://travis-ci.org/apisnetworks/apiscp-bootstrapper.svg?branch=master)](https://travis-ci.org/apisnetworks/apiscp-bootstrapper)
 
 # ApisCP Bootstrap Utility
-Bootstrap Utility ("bootstrap.sh") provides an automated installation process to setup [ApisCP](https://apiscp.com) on a compatible CentOS/RHEL machine. Not to be confused with apnscp Bootstrapper, which is a specific component of ApisCP's [playbooks](https://github.com/apisnetworks/apnscp-playbooks) and called by this utility once the minimum environment is setup.
+Bootstrap Utility ("bootstrap.sh") provides an automated installation process to setup [ApisCP](https://apiscp.com) on a compatible CentOS/RHEL machine. Not to be confused with "Bootstrapper", which is a specific component of ApisCP's [playbooks](https://github.com/apisnetworks/apiscp-playbooks) and called by this utility once the minimum environment is setup.
 
 # Usage
 ## Trial mode
 Trials are valid for 30 days and during development may be continuously rearmed as necessary. Trials can also be used to benchmark cloud providers (see below).
 
 ```bash
-curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash
+curl https://raw.githubusercontent.com/apisnetworks/apiscp-bootstrapper/master/bootstrap.sh | bash
 ```
 
 ## Registered licenses
 
 After registering on [my.apiscp.com](https://my.apiscp.com), use the token to automatically download the key.
 ```bash
-curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - <api token> <optional common name>
+curl https://raw.githubusercontent.com/apisnetworks/apiscp-bootstrapper/master/bootstrap.sh | bash -s - <api token> <optional common name>
 ```
 
 Alternatively, if you have the x509 key ("license.pem") available where &lt;keyfile&gt; is the absolute path.
 ```bash
-curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -k <keyfile>
+curl https://raw.githubusercontent.com/apisnetworks/apiscp-bootstrapper/master/bootstrap.sh | bash -s - -k <keyfile>
 ```
 
 ### Optional common name
@@ -29,11 +29,11 @@ An optional common name may be specified after &lt;api token&gt;. This is a 64 c
 
 ## Setting initial configuration
 
-ApisCP may be customized via [ApisCP's customizer](https://apiscp.com/#customize) or command-line. apiscp.com provides a selection of options that are adequate for most environments. Any variable may be overwritten for any play in the playbook. Common options are located in [`apnscp-vars.yml`](https://github.com/apisnetworks/apnscp-playbooks/blob/master/apnscp-vars.yml) and [`apnscp-internals.yml`](https://github.com/apisnetworks/apnscp-playbooks/blob/master/roles/common/vars/apnscp-internals.yml).
+ApisCP may be customized via [ApisCP's customizer](https://apiscp.com/#customize) or command-line. apiscp.com provides a selection of options that are adequate for most environments. Any variable may be overwritten for any play in the playbook. Common options are located in [`apnscp-vars.yml`](https://github.com/apisnetworks/apiscp-playbooks/blob/master/apnscp-vars.yml) and [`apnscp-internals.yml`](https://github.com/apisnetworks/apiscp-playbooks/blob/master/roles/common/vars/apnscp-internals.yml).
 
 ### Command-line overrides
 
-`-s` may be used to set variables at installation in [`apnscp-vars.yml`](https://github.com/apisnetworks/apnscp-playbooks/blob/master/apnscp-vars.yml), which is the initial configuration template for ApisCP. Additionally any role defaults may be overridden through this usage (such as "[rspamd_enabled](https://github.com/apisnetworks/apnscp-playbooks/blob/master/roles/mail/rspamd/defaults/main.yml)"). Escape sequences and quote when necessary because variables are passed as-is to apnscp-vars.yml.
+`-s` may be used to set variables at installation in [`apnscp-vars.yml`](https://github.com/apisnetworks/apiscp-playbooks/blob/master/apnscp-vars.yml), which is the initial configuration template for ApisCP. Additionally any role defaults may be overridden through this usage (such as "[rspamd_enabled](https://github.com/apisnetworks/apiscp-playbooks/blob/master/roles/mail/rspamd/defaults/main.yml)"). Escape sequences and quote when necessary because variables are passed as-is to apnscp-vars.yml.
 
 ```bash
 # Run bootstrap.sh from CLI setting apnscp_admin_email and ssl_hostnames in unattended installation
@@ -43,21 +43,21 @@ bootstrap.sh -s apnscp_admin_email=matt@apisnetworks.com -s ssl_hostnames="['api
 These arguments may be passed as part of the one-liner too. *Note usage of `-` after first `-s`.*
 
 ```bash
-curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -s apnscp_admin_email=matt@apisnetworks.com -s ssl_hostnames="['apnscp.com','apisnetworks.com']"
+curl https://raw.githubusercontent.com/apisnetworks/apiscp-bootstrapper/master/bootstrap.sh | bash -s - -s apnscp_admin_email=matt@apisnetworks.com -s ssl_hostnames="['apnscp.com','apisnetworks.com']"
 ```
 
 Standard bootstrap.sh options may also be applied after the options, for example
 
 ```bash
-curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | bash -s - -s apnscp_admin_email=matt@apisnetworks.com someactivationkey
+curl https://raw.githubusercontent.com/apisnetworks/apiscp-bootstrapper/master/bootstrap.sh | bash -s - -s apnscp_admin_email=matt@apisnetworks.com someactivationkey
 ```
 
 # Benchmarking providers
 
-bootstrap.sh can also be used to benchmark a provider since it runs unassisted from start to finish. For consistency commit [3f2944ae](https://gitlab.com/apisnetworks/apnscp/tree/benchmark) is referenced ("benchmark" tag). If `RELEASE` is omitted bootstrap.sh will use master, which may produce different results than the stats below.
+bootstrap.sh can also be used to benchmark a provider since it runs unassisted from start to finish. For consistency commit [3f2944ae](https://gitlab.com/apisnetworks/apiscp/tree/benchmark) is referenced ("benchmark" tag). If `RELEASE` is omitted bootstrap.sh will use master, which may produce different results than the stats below.
 
 ```bash
-curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | env RELEASE=benchmark bash 
+curl https://raw.githubusercontent.com/apisnetworks/apiscp-bootstrapper/master/bootstrap.sh | env RELEASE=benchmark bash 
 ```
 
 Check back in ~2 hours then run the following command:
@@ -77,20 +77,20 @@ exec $SHELL -i
 
 Then run the cpcmd helper,
 ```bash
-cpcmd scope:set cp.debug true; systemctl restart apiscp; sleep 10; cpcmd test:backend-performance 100000; cpcmd scope:set apnscp.debug false
+cpcmd scope:set cp.debug true; systemctl restart apiscp; sleep 10; cpcmd test:backend-performance 100000; cpcmd scope:set cp.debug false
 ```
 
-debug mode will be temporarily enabled, which opens up access to the [test module](https://api.apnscp.com/class-Test_Module.html) API.
+debug mode will be temporarily enabled, which opens up access to the [test module](https://api.apiscp.com/class-Test_Module.html) API.
 
 ### Converting into production panel
 
-A server provisioned using the *benchmark* branch can be converted to a normal build without resetting the server. Use cpcmd to set any [apnscp-vars.yml](https://github.com/apisnetworks/apnscp-playbooks/blob/master/apnscp-vars.yml) value; use the [Customization Utility](https://apnscp.com/#customize) on apnscp as cross-reference.
+A server provisioned using the *benchmark* branch can be converted to a normal build without resetting the server. Use cpcmd to set any [apnscp-vars.yml](https://github.com/apisnetworks/apnscp-playbooks/blob/master/apnscp-vars.yml) value; use the [Customization Utility](https://apiscp.com/#customize) as cross-reference.
 
 ```bash
-# Launch new bash shell with apnscp helper functions
+# Launch new bash shell with ApisCP helper functions
 exec $SHELL -i
 cd /usr/local/apnscp
-# Save remote URL, should be gitlab.com/apisnetworks/apnscp.git
+# Save remote URL, should be gitlab.com/apisnetworks/apiscp.git
 REMOTE="$(git config --get remote.origin.url)"
 git remote remove origin
 git remote add -f -t master origin "$REMOTE"
@@ -101,11 +101,11 @@ env "BSARGS=--extra-vars='populate_filesystem_template=true'" upcp -sb
 # After Bootstrapper completes - it will take 5-30 minutes to do so
 ```
 
-`populate_filesystem_template` must be enabled to update any packages that have been added/removed in apnscp. Once everything is done, access [apnscp's interface](https://hq.apnscp.com/apnscp-pre-alpha-technical-release/#loggingintoapnscp) to get started.
+`populate_filesystem_template` must be enabled to update any packages that have been added/removed in ApisCP. Once everything is done, access [ApisCP's interface](https://hq.apiscp.com/apnscp-pre-alpha-technical-release/#loggingintoapnscp) to get started.
 
 ## Provider stats
 
-Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 minutes is impressive. These are stats taken from [Bootstrapper](https://github.com/apisnetworks/apnscp-playbooks) initial runs as bundled with part of [apnscp](https://apisnetworks.com). Note that as with shared hosting, or any shared resource, performance is adversely affected by oversubscription and noisy neighbors. Newer hypervisors show better benchmark numbers whereas older hypervisors show lower performance figures.
+Bootstrapping should complete within 90 minutes on a single core VPS. Under 60 minutes is impressive. These are stats taken from [Bootstrapper](https://github.com/apisnetworks/apiscp-playbooks) initial runs as bundled with part of [ApisCP](https://apisnetworks.com). Note that as with shared hosting, or any shared resource, performance is adversely affected by oversubscription and noisy neighbors. Newer hypervisors show better benchmark numbers whereas older hypervisors show lower performance figures.
 
 *Updated July 30, 2022*
 
@@ -184,7 +184,7 @@ sys     0m17.572s
 bootstrap.sh includes role profiling. Set `ANSIBLE_STDOUT_CALLBACK=profile_roles` as a wrapper:
 
 ```bash
-curl https://raw.githubusercontent.com/apisnetworks/apnscp-bootstrapper/master/bootstrap.sh | env WRAPPER='ANSIBLE_STDOUT_CALLBACK=profile_roles' bash
+curl https://raw.githubusercontent.com/apisnetworks/apiscp-bootstrapper/master/bootstrap.sh | env WRAPPER='ANSIBLE_STDOUT_CALLBACK=profile_roles' bash
 ```
 
 An average runtime of the top 20 most expensive roles. This completed 1:00:05 on February 10, 2019 (Vultr, 2 GB).

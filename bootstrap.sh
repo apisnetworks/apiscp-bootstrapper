@@ -8,6 +8,7 @@ APNSCP_REPO="${APNSCP_REPO:-https://gitlab.com/apisnetworks/apnscp.git}"
 LICENSE_URL="https://bootstrap.apnscp.com/"
 APNSCP_HOME=/usr/local/apnscp
 LICENSE_KEY="${APNSCP_HOME}/config/license.pem"
+LICENSE_CA="${APNSCP_HOME}/resources/apnscp.ca"
 LOG_PATH="${LOG_PATH:-/root/apnscp-bootstrapper.log}"
 # Feeling feisty and want to use screen or nohup
 WRAPPER=${WRAPPER:-""}
@@ -146,7 +147,7 @@ install_yum_pkg() {
 	declare -a ARGS
 
 	[[ -f /etc/yum.repos.d/epel-testing.repo ]] && ARGS+=("--enablerepo=epel-testing")
-	[[ ! -f "$LICENSE_KEY" ]] && ARGS+=("--disablerepo='apnscp*'")
+	{ [[ ! -f "$LICENSE_KEY" ]] || [[ ! -f "$LICENSE_CA" ]]; } && ARGS+=(--disablerepo='apnscp*')
 	ARGS+=("--")
 	$YUM_BIN -y "${ARGS[@]}" install "$@"
 	STATUS=$?
@@ -244,10 +245,12 @@ fetch_license() {
 		 > >(readarray -t CODE; typeset -p CODE) )"
 
 	STATUS=$?
+	# shellcheck disable=SC2128,SC2178
 	if [[ $CODE -ge 300 || $CODE -lt 200 ]]; then
 		ERROR="$(cat "$TMPKEY")"
 		rm -f "$TMPKEY"
 	fi
+	# shellcheck disable=SC2128
 	[[ $STATUS -ne 0 || $CODE -ge 300 || $CODE -lt 200 ]] && fatal "Failed to fetch activation key: ($CODE) ${ERROR:-rate-limited}"
 	install_key "$TMPKEY"
 	return 0
