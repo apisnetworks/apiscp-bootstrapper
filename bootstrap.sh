@@ -266,7 +266,7 @@ install_key() {
 }
 
 install() {
-	local PACKAGES=(rsyslog gawk git nano screen)
+	local PACKAGES=(rsyslog gawk git nano screen iputils)
 	#
 	if is_7; then
 		PACKAGES+=(libselinux-python yum-plugin priorities yum-plugin-fastestmirror yum-utils python-pip python-netaddr)
