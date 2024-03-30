@@ -289,6 +289,7 @@ install() {
 	else
 		dnf install -y libcurl --allowerasing || true
 	fi
+	yum remove -qy httpd nginx 'php*'
 	systemctl enable --now rsyslog || (rm -rf "$APNSCP_HOME" && fatal "OS image is faulty. systemd cannot be accessed. Reboot server, then restart installation.")
 	echo "Switching to stage 2 bootstrapper..."
 	echo ""
