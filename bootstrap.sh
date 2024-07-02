@@ -3,7 +3,7 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-YUM_BIN=/usr/bin/yum
+YUM_BIN=/usr/bin/dnf
 APNSCP_REPO="${APNSCP_REPO:-https://gitlab.com/apisnetworks/apnscp.git}"
 LICENSE_URL="https://bootstrap.apnscp.com/"
 APNSCP_HOME=/usr/local/apnscp
@@ -91,9 +91,8 @@ RHEL_EPEL_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(as_ma
 [[ -z "$(as_major)" ]] && fatal "Unsupported OS release"
 test -z "${DEBUG+x}" && test -f "$(dirname "$LICENSE_KEY")/config.ini" && fatal "ApisCP already installed"
 test -n "${DEBUG+x}" && EXTRA_VARS+=("apnscp_update_policy='edge'") && RELEASE=${RELEASE:-master}
-
-if ! is_7; then
-	YUM_BIN="/usr/bin/dnf"
+if is_7; then
+	fatal "CentOS 7 went EOL June 30, 2024. It is no longer supported for new installs."
 fi
 
 if test $EUID -ne 0; then
