@@ -47,6 +47,12 @@ is_os() {
 	esac
 }
 
+is_10() {
+	local FILE=/etc/redhat-release
+	grep -qE '\s10(\.|$)' $FILE
+	return $?
+}
+
 is_9() {
 	local FILE=/etc/redhat-release
 	grep -qE '\s9(\.|$)' $FILE
@@ -74,9 +80,10 @@ is_stream() {
 }
 
 as_major() {
-	if is_9; then
-		# Pending
-		echo ""
+	if is_10; then
+		echo "10"
+	elif is_9; then
+		echo "9"
 	elif is_8; then
 		echo "8"
 	else
@@ -280,8 +287,12 @@ install() {
 	install_yum_pkg "${PACKAGES[@]}"
 	install_apnscp_rpm
 	install_dev
-	# Fetch from apnscp repo
-	install_yum_pkg ansible
+	if is_7 || is_8; then
+		# Fetch from apnscp repo
+		install_yum_pkg ansible
+	else
+		install_yum_pkg ansible-core ansible-collection-ansible-posix ansible-collection-community-general
+	fi
 	# Conflicts with libcurl-devel
 	if ! is_8; then
 		rpm -e libcurl-minimal 2> /dev/null || true
@@ -290,6 +301,11 @@ install() {
 	fi
 	yum remove -qy httpd nginx 'php*'
 	systemctl enable --now rsyslog || (rm -rf "$APNSCP_HOME" && fatal "OS image is faulty. systemd cannot be accessed. Reboot server, then restart installation.")
+
+	pushd "$APNSCP_HOME"/resources/playbooks > /dev/null
+	! is_7 && ! is_8 && ansible-galaxy collection install -r requirements.yml
+	popd > /dev/null
+
 	echo "Switching to stage 2 bootstrapper..."
 	echo ""
 	sleep 1
@@ -314,7 +330,9 @@ install_dev() {
 		# Provide commit history for EDGE to revert back to last tagged release after install
 		# "git describe" fails to find divergence without
 		if [[ "$(as_major)" != "7" ]]; then
-			git fetch --shallow-since="$(git for-each-ref --sort=taggerdate --format '%(tag) %(creatordate:format:%s)' refs/tags | grep '^v' | tail -n 2 | head -n 1 | cut -d' ' -f2)"
+			( set -euo pipefail
+			  git fetch --shallow-since="$(git for-each-ref --sort=taggerdate --format '%(tag) %(creatordate:format:%s)' refs/tags | grep '^v' | tail -n 2 | head -n 1 | cut -d' ' -f2 || echo '3 months ago')"
+			)
 		else
 			# Incremental deepening is broken in CentOS 7.x
 			git fetch --depth=100
@@ -327,7 +345,7 @@ install_dev() {
 		git config --unset core.bare
 		git reset --hard
 	fi
-	git submodule update --init --recursive
+	git submodule update --init --recursive --remote
 	[[ -f "$APNSCP_HOME"/build/set-repo-user.sh ]] && "$APNSCP_HOME"/build/set-repo-user.sh
 	pushd "$APNSCP_HOME"/config
 	find . -type f -iname '*.dist' | while read -r file ; do cp "$file" "${file%.dist}" ; done
